@@ -1,0 +1,46 @@
+{
+  "system": {
+    "software_title": "Genetics Experimentation System",
+    "version": "1.0.0-academic",
+    "target_audience": "Postgraduate M.Sc. Genetics",
+    "mode": "desktop_simulation",
+    "available_modes": ["desktop_simulation", "raspberry_pi"],
+    "display": {
+      "default_resolution": "1024x600",
+      "supported_resolutions": ["800x480", "1024x600", "fullscreen"],
+      "font_scaling": 1.0,
+      "kiosk_mode": false
+    }
+  },
+  "hardware": {
+    "switch_inputs": {
+      "parent1": {
+        "locus_a": {"pin_pos1": 17, "pin_pos2": 27, "name": "P1 Locus A (TT/Tt/tt)"},
+        "locus_b": {"pin_pos1": 22, "pin_pos2": 23, "name": "P1 Locus B (BB/Bb/bb)"}
+      },
+      "parent2": {
+        "locus_a": {"pin_pos1": 24, "pin_pos2": 25, "name": "P2 Locus A (TT/Tt/tt)"},
+        "locus_b": {"pin_pos1": 5, "pin_pos2": 6, "name": "P2 Locus B (BB/Bb/bb)"}
+      }
+    },
+    "navigation_buttons": {
+      "confirm": 12,
+      "next_screen": 13,
+      "prev_screen": 16
+    },
+    "led_indicators": {
+      "input_confirmed": 26,
+      "prediction_correct": 19,
+      "prediction_inconsistent": 20,
+      "experiment_complete": 21,
+      "hardware_error": 18
+    },
+    "debounce_ms": 50,
+    "logic_voltage": "3.3V"
+  },
+  "storage": {
+    "experiments_dir": "experiments",
+    "data_dir": "data",
+    "export_format": ["json", "csv"]
+  }
+}

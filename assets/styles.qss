@@ -1,0 +1,211 @@
+/*
+================================================================================
+ACADEMIC GENETICS RESEARCH INSTRUMENT STYLESHEET
+Color Palette: Deep Lab Navy (#070d1e), Instrument Surface (#0f1a30), Card (#162444),
+Borders (#223a66), Accent Cyan (#00b4d8), Mint (#2ec4b6), Warning Amber (#f4a261),
+Alert Crimson (#e76f51), Text Light (#e0e6ed), Text Dim (#8da0b8)
+Optimized for 7-inch display (800x480 & 1024x600)
+================================================================================
+*/
+
+QWidget {
+    background-color: #070d1e;
+    color: #e0e6ed;
+    font-family: "Segoe UI", "DejaVu Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: 11px;
+}
+
+QMainWindow, QDialog {
+    background-color: #070d1e;
+}
+
+QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
+QScrollBar:vertical {
+    background-color: #0f1a30;
+    width: 8px;
+    margin: 0px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #223a66;
+    min-height: 20px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #00b4d8;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+/* CARDS & PANELS */
+QFrame.lab-panel {
+    background-color: #0f1a30;
+    border: 1px solid #223a66;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+QFrame.lab-card {
+    background-color: #162444;
+    border: 1px solid #294477;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+/* LABELS & HEADINGS */
+QLabel.heading-primary {
+    font-size: 15px;
+    font-weight: bold;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+QLabel.heading-secondary {
+    font-size: 12px;
+    font-weight: bold;
+    color: #00b4d8;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+QLabel.label-dim {
+    font-size: 10px;
+    color: #8da0b8;
+}
+
+QLabel.badge-active {
+    background-color: #103b42;
+    color: #2ec4b6;
+    border: 1px solid #2ec4b6;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-weight: bold;
+    font-size: 9px;
+}
+
+QLabel.badge-planned {
+    background-color: #262a36;
+    color: #8da0b8;
+    border: 1px solid #414a5e;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 9px;
+}
+
+/* BUTTONS */
+QPushButton {
+    background-color: #162444;
+    color: #e0e6ed;
+    border: 1px solid #2c4475;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 11px;
+}
+
+QPushButton:hover {
+    background-color: #1f325c;
+    border-color: #00b4d8;
+    color: #ffffff;
+}
+
+QPushButton:pressed {
+    background-color: #0077b6;
+    border-color: #00b4d8;
+}
+
+QPushButton:focus {
+    border: 2px solid #00b4d8;
+    outline: none;
+}
+
+QPushButton.btn-primary {
+    background-color: #0077b6;
+    color: #ffffff;
+    border: 1px solid #00b4d8;
+}
+
+QPushButton.btn-primary:hover {
+    background-color: #0096c7;
+}
+
+QPushButton.btn-success {
+    background-color: #1b4d3e;
+    color: #2ec4b6;
+    border: 1px solid #2ec4b6;
+}
+
+QPushButton.btn-success:hover {
+    background-color: #236551;
+}
+
+QPushButton.btn-warning {
+    background-color: #4a3419;
+    color: #f4a261;
+    border: 1px solid #f4a261;
+}
+
+/* INPUT CONTROLS */
+QComboBox, QLineEdit, QSpinBox {
+    background-color: #0b1325;
+    color: #ffffff;
+    border: 1px solid #2a3d66;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+QComboBox:focus, QLineEdit:focus, QSpinBox:focus {
+    border: 1px solid #00b4d8;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #0f1a30;
+    color: #ffffff;
+    selection-background-color: #0077b6;
+    border: 1px solid #2a3d66;
+}
+
+/* TABLES */
+QTableWidget {
+    background-color: #0b1325;
+    border: 1px solid #223a66;
+    border-radius: 4px;
+    gridline-color: #1a2a4a;
+    font-size: 10px;
+}
+
+QHeaderView::section {
+    background-color: #162444;
+    color: #00b4d8;
+    padding: 4px;
+    border: 1px solid #223a66;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+QTableWidget::item:selected {
+    background-color: #1e3563;
+    color: #ffffff;
+}
+
+/* STATUS BAR */
+QStatusBar {
+    background-color: #0b1325;
+    border-top: 1px solid #223a66;
+    color: #8da0b8;
+    font-size: 10px;
+}

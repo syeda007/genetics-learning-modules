@@ -1,0 +1,33 @@
+{
+  "experiment_id": "EXP01-20261018-232524",
+  "timestamp": "2026-10-18T23:25:24.650130",
+  "experiment_type": "Monohybrid Inheritance (Single Locus)",
+  "parent1_genotype": "Tt",
+  "parent2_genotype": "Tt",
+  "model_name": "Classical Mendelian Inheritance (Complete Dominance)",
+  "model_assumptions": [
+    "Dominance Model: Complete Dominance. Heterozygotes exhibit the exact phenotype of the dominant homozygote.",
+    "Chromosomal Linkage: Unlinked (Synteny Absent, r = 0.50). Loci segregate independently according to Mendel's Second Law.",
+    "Meiotic Segregation: Normal chromosome disjunction occurs at anaphase I with no meiotic drive.",
+    "Fertilization: Random union of gametes with equal gamete and zygote viability (no lethal alleles).",
+    "Expressivity & Penetrance: Complete penetrance (100%) with Uniform phenotypic manifestation.",
+    "Gene Interaction: No inter-locus epistasis, duplicate gene action, or modifying gene effects."
+  ],
+  "student_prediction": "3:1",
+  "expected_genotypic_ratio": "2 : 1 : 1",
+  "expected_phenotypic_ratio": "3 : 1",
+  "theoretical_frequencies": {
+    "Tall": 0.75,
+    "Dwarf": 0.25
+  },
+  "simulated_or_observed_counts": {},
+  "is_simulation": false,
+  "simulation_seed": null,
+  "sample_size": 0,
+  "chi_square_statistic": null,
+  "degrees_of_freedom": null,
+  "p_value": null,
+  "statistical_conclusion": null,
+  "error_classification": "CORRECT_PREDICTION",
+  "scientific_interpretation": "CORRECT: Your predicted phenotype ratio (3:1) is completely consistent with the theoretical outcome under Classical Mendelian Inheritance (Complete Dominance). Meiotic segregation and gametic union produce this exact distribution."
+}

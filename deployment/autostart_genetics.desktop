@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Genetics Research System
+Comment=Interactive Classical Genetics and Statistical Inheritance Analysis
+Exec=/bin/bash -c "cd /home/pi/genetics-research-system && source .venv/bin/activate && python3 main.py"
+Terminal=false
+Icon=system-run
+Categories=Education;Science;
+X-KeepTerminal=false
+StartupNotify=false
