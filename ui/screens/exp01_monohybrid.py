@@ -1,13 +1,14 @@
-"""
-UI Screen: Experiment 01 — Monohybrid Inheritance
-Academic Genetics Research System (Postgraduate M.Sc. Genetics)
+﻿"""
+UI Screen: Experiment 01 — Monohybrid Inheritance v4.0
+Visual-first layout with inline verdict feedback and animated Punnett square.
 """
 from datetime import datetime
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QFrame, QComboBox, QLineEdit, QTextEdit, QScrollArea, QSplitter
+    QFrame, QComboBox, QLineEdit, QScrollArea, QSizePolicy, QSplitter
 )
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer, QPropertyAnimation, QEasingCurve
+from PyQt5.QtGui import QFont, QColor, QPainter, QPen, QBrush, QPainterPath
 
 from genetics_engine.allele import TALL_ALLELE, DWARF_ALLELE
 from genetics_engine.genotype import MultiLocusGenotype
@@ -20,9 +21,65 @@ from ui.components.dna_visualizer import DnaHelixWidget
 from ui.components.cross_diagram import CrossDiagramWidget
 from hardware.base import HardwareAdapter
 from hardware.led_controller import LedController
-from content.scientific_text import MENDELIAN_BACKGROUND
 
-ALLELE_MAP = {'T': TALL_ALLELE, 't': DWARF_ALLELE}
+ALLELE_MAP = {"T": TALL_ALLELE, "t": DWARF_ALLELE}
+
+
+def _chip(text, bg, fg, parent):
+    lbl = QLabel(text, parent)
+    lbl.setStyleSheet(
+        f"background:{bg}; color:{fg}; border-radius:5px;"
+        f"padding:2px 9px; font-size:9px; font-weight:700;"
+    )
+    return lbl
+
+
+class VerdictPanel(QFrame):
+    """Inline verdict widget that shows CORRECT / INCORRECT prominently."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("verdict-neutral")
+        self.setMinimumHeight(70)
+
+        lay = QHBoxLayout(self)
+        lay.setContentsMargins(14, 10, 14, 10)
+        lay.setSpacing(12)
+
+        self.icon_lbl = QLabel("—", self)
+        self.icon_lbl.setFixedWidth(32)
+        self.icon_lbl.setAlignment(Qt.AlignCenter)
+        self.icon_lbl.setStyleSheet("font-size: 22px; font-weight: 900; color: #94a3b8;")
+        lay.addWidget(self.icon_lbl)
+
+        text_col = QVBoxLayout()
+        self.verdict_lbl = QLabel("Run a cross to evaluate your prediction.", self)
+        self.verdict_lbl.setStyleSheet("font-size: 12px; font-weight: 700; color: #64748b;")
+        self.detail_lbl = QLabel("", self)
+        self.detail_lbl.setWordWrap(True)
+        self.detail_lbl.setStyleSheet("font-size: 9px; color: #475569;")
+        text_col.addWidget(self.verdict_lbl)
+        text_col.addWidget(self.detail_lbl)
+        lay.addLayout(text_col)
+
+    def set_result(self, is_correct: bool, feedback: str, derivation: str):
+        if is_correct:
+            self.setObjectName("verdict-correct")
+            self.icon_lbl.setText("✓")
+            self.icon_lbl.setStyleSheet("font-size: 22px; font-weight: 900; color: #059669;")
+            self.verdict_lbl.setText("CORRECT — Your prediction matches the expected ratio.")
+            self.verdict_lbl.setStyleSheet("font-size: 12px; font-weight: 800; color: #14532d;")
+        else:
+            self.setObjectName("verdict-incorrect")
+            self.icon_lbl.setText("✗")
+            self.icon_lbl.setStyleSheet("font-size: 22px; font-weight: 900; color: #dc2626;")
+            self.verdict_lbl.setText("INCORRECT — Your prediction does not match.")
+            self.verdict_lbl.setStyleSheet("font-size: 12px; font-weight: 800; color: #7f1d1d;")
+        self.detail_lbl.setText(feedback[:180])
+        # Force style refresh
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
 
 
 class MonohybridExperimentScreen(QWidget):
@@ -38,265 +95,257 @@ class MonohybridExperimentScreen(QWidget):
         self._init_ui()
 
     def _init_ui(self):
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(10, 6, 10, 6)
-        main_layout.setSpacing(6)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
-        # ── Header ──────────────────────────────────────────────
-        header_h = QHBoxLayout()
-        btn_back = QPushButton("← HUB", self)
-        btn_back.setFixedWidth(80)
-        btn_back.clicked.connect(lambda: self.navigate_to.emit("module01_hub"))
-        header_h.addWidget(btn_back)
-
-        title = QLabel("EXP 01 · Monohybrid Inheritance", self)
-        title.setStyleSheet("font-size: 14px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px;")
-        header_h.addWidget(title)
-
-        badge = QLabel("Single Locus · Complete Dominance", self)
-        badge.setStyleSheet(
-            "background:#dbeafe; color:#1d4ed8; font-size:9px; font-weight:700;"
-            "border-radius:8px; padding:3px 8px;"
+        # ── Top header bar
+        header_frame = QFrame(self)
+        header_frame.setStyleSheet(
+            "background: #ffffff; border-bottom: 1px solid #e8eaf2;"
         )
-        header_h.addWidget(badge)
-        header_h.addStretch()
-        main_layout.addLayout(header_h)
+        header_frame.setFixedHeight(44)
+        h_lay = QHBoxLayout(header_frame)
+        h_lay.setContentsMargins(14, 6, 14, 6)
+        h_lay.setSpacing(10)
 
-        # ── 3-panel splitter ──────────────────────────────────────
+        btn_back = QPushButton("← Hub", header_frame)
+        btn_back.setObjectName("btn-back")
+        btn_back.setFixedWidth(70)
+        btn_back.clicked.connect(lambda: self.navigate_to.emit("module01_hub"))
+        h_lay.addWidget(btn_back)
+
+        title_lbl = QLabel("EXP 01 — Monohybrid Inheritance", header_frame)
+        title_lbl.setStyleSheet("font-size: 13px; font-weight: 800; color: #1a1d2e;")
+        h_lay.addWidget(title_lbl)
+
+        h_lay.addWidget(_chip("Single Locus", "#eef2ff", "#4f46e5", header_frame))
+        h_lay.addWidget(_chip("Complete Dominance", "#f0fdf4", "#059669", header_frame))
+        h_lay.addStretch()
+
+        self.save_lbl = QLabel("", header_frame)
+        self.save_lbl.setStyleSheet("color: #059669; font-size: 9px; font-weight: 700;")
+        h_lay.addWidget(self.save_lbl)
+
+        root.addWidget(header_frame)
+
+        # ── Main splitter
         splitter = QSplitter(Qt.Horizontal, self)
+        splitter.setHandleWidth(1)
 
-        # ── LEFT: DNA helix + cross diagram ──────────────────────
-        left_widget = QWidget()
-        left_layout = QVBoxLayout(left_widget)
-        left_layout.setContentsMargins(2, 2, 2, 2)
-        left_layout.setSpacing(4)
-
-        # DNA helix
-        self.dna_widget = DnaHelixWidget(left_widget)
-        self.dna_widget.setFixedHeight(200)
-        self.dna_widget.set_loci_info("Locus T (Height)", "ACTIVE")
-        left_layout.addWidget(self.dna_widget)
-
-        # Cross diagram
-        self.cross_diagram = CrossDiagramWidget(left_widget)
-        self.cross_diagram.setFixedHeight(185)
-        left_layout.addWidget(self.cross_diagram)
-
-        left_layout.addStretch()
-        splitter.addWidget(left_widget)
-
-        # ── MIDDLE: Controls ──────────────────────────────────────
-        mid_widget = QWidget()
-        mid_layout = QVBoxLayout(mid_widget)
-        mid_layout.setContentsMargins(4, 4, 4, 4)
-        mid_layout.setSpacing(6)
+        # ── LEFT PANEL: controls
+        left = QWidget()
+        left.setMinimumWidth(260)
+        left.setMaximumWidth(310)
+        left_lay = QVBoxLayout(left)
+        left_lay.setContentsMargins(14, 14, 8, 14)
+        left_lay.setSpacing(10)
 
         # Parents card
-        parents_frame = QFrame(mid_widget)
-        parents_frame.setObjectName("lab-card")
-        p_layout = QVBoxLayout(parents_frame)
-        p_layout.setSpacing(6)
+        parents_card = QFrame(left)
+        parents_card.setObjectName("card-accent")
+        p_lay = QVBoxLayout(parents_card)
+        p_lay.setContentsMargins(14, 12, 14, 12)
+        p_lay.setSpacing(8)
 
-        p_lbl = QLabel("⚗ PARENTAL GENOTYPES", parents_frame)
-        p_lbl.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
-        p_layout.addWidget(p_lbl)
+        p_header = QLabel("PARENTAL GENOTYPES", parents_card)
+        p_header.setStyleSheet("font-size: 9px; font-weight: 800; color: #6366f1; letter-spacing: 1px;")
+        p_lay.addWidget(p_header)
 
-        for label_txt, attr in [("♀ Parent 1:", "p1_combo"), ("♂ Parent 2:", "p2_combo")]:
+        for label, attr in [("Parent 1 (♀):", "p1_combo"), ("Parent 2 (♂):", "p2_combo")]:
             row = QHBoxLayout()
-            lbl = QLabel(label_txt, parents_frame)
-            lbl.setFixedWidth(72)
-            combo = QComboBox(parents_frame)
+            lbl = QLabel(label, parents_card)
+            lbl.setFixedWidth(80)
+            lbl.setStyleSheet("font-size: 10px; font-weight: 600; color: #475569;")
+            combo = QComboBox(parents_card)
             combo.addItems(["TT — Homozygous Dom.", "Tt — Heterozygous", "tt — Homozygous Rec."])
             combo.setCurrentIndex(1)
             row.addWidget(lbl)
             row.addWidget(combo)
-            p_layout.addLayout(row)
+            p_lay.addLayout(row)
             setattr(self, attr, combo)
 
-        mid_layout.addWidget(parents_frame)
+        left_lay.addWidget(parents_card)
 
-        # Hypothesis card
-        hypo_frame = QFrame(mid_widget)
-        hypo_frame.setObjectName("lab-card")
-        hypo_layout = QVBoxLayout(hypo_frame)
-        hypo_layout.setSpacing(4)
-        hypo_lbl = QLabel("🎯 PREDICTED PHENOTYPIC RATIO", hypo_frame)
-        hypo_lbl.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
-        hypo_layout.addWidget(hypo_lbl)
+        # Prediction card
+        pred_card = QFrame(left)
+        pred_card.setObjectName("card")
+        pred_lay = QVBoxLayout(pred_card)
+        pred_lay.setContentsMargins(14, 12, 14, 12)
+        pred_lay.setSpacing(8)
+
+        pred_header = QLabel("YOUR PREDICTION", pred_card)
+        pred_header.setStyleSheet("font-size: 9px; font-weight: 800; color: #6366f1; letter-spacing: 1px;")
+        pred_lay.addWidget(pred_header)
 
         pred_row = QHBoxLayout()
-        pred_row.addWidget(QLabel("Ratio:", hypo_frame))
-        self.pred_input = QLineEdit(hypo_frame)
+        pred_lbl = QLabel("Phenotypic ratio:", pred_card)
+        pred_lbl.setStyleSheet("font-size: 10px; color: #475569;")
+        pred_row.addWidget(pred_lbl)
+        self.pred_input = QLineEdit(pred_card)
         self.pred_input.setPlaceholderText("e.g. 3:1")
         self.pred_input.setText("3:1")
         pred_row.addWidget(self.pred_input)
-        hypo_layout.addLayout(pred_row)
-        mid_layout.addWidget(hypo_frame)
+        pred_lay.addLayout(pred_row)
 
-        # Buttons
-        btn_cross = QPushButton("⚡ RUN CROSS", mid_widget)
-        btn_cross.setObjectName("btn-primary")
-        btn_cross.clicked.connect(self._run_cross)
-        mid_layout.addWidget(btn_cross)
+        left_lay.addWidget(pred_card)
 
-        self.btn_save = QPushButton("💾 SAVE RECORD", mid_widget)
+        # Run button
+        self.btn_run = QPushButton("Run Cross & Evaluate", left)
+        self.btn_run.setObjectName("btn-primary")
+        self.btn_run.clicked.connect(self._run_cross)
+        left_lay.addWidget(self.btn_run)
+
+        self.btn_save = QPushButton("Save Experiment Record", left)
         self.btn_save.setEnabled(False)
         self.btn_save.clicked.connect(self._save_record)
-        mid_layout.addWidget(self.btn_save)
+        left_lay.addWidget(self.btn_save)
 
-        self.save_status_label = QLabel("", mid_widget)
-        self.save_status_label.setStyleSheet("color: #10b981; font-size: 9px; font-weight: bold;")
-        mid_layout.addWidget(self.save_status_label)
+        # Ratios display
+        self.ratio_card = QFrame(left)
+        self.ratio_card.setObjectName("card")
+        ratio_lay = QVBoxLayout(self.ratio_card)
+        ratio_lay.setContentsMargins(12, 10, 12, 10)
+        ratio_hdr = QLabel("CALCULATED RATIOS", self.ratio_card)
+        ratio_hdr.setStyleSheet("font-size: 9px; font-weight: 800; color: #6366f1; letter-spacing: 1px;")
+        ratio_lay.addWidget(ratio_hdr)
+        self.ratio_lbl = QLabel("—", self.ratio_card)
+        self.ratio_lbl.setWordWrap(True)
+        self.ratio_lbl.setStyleSheet(
+            "font-family: 'Fira Code','Consolas',monospace; font-size: 10px; color: #334155;"
+        )
+        ratio_lay.addWidget(self.ratio_lbl)
+        left_lay.addWidget(self.ratio_card)
+        left_lay.addStretch()
 
-        # Results card
-        self.results_card = QFrame(mid_widget)
-        self.results_card.setObjectName("lab-card")
-        res_layout = QVBoxLayout(self.results_card)
-        res_lbl = QLabel("📊 CALCULATED RATIOS", self.results_card)
-        res_lbl.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
-        self.res_text = QLabel("Run a cross to see results.", self.results_card)
-        self.res_text.setWordWrap(True)
-        self.res_text.setStyleSheet("color: #334155; font-size: 10px; font-family: 'Consolas', monospace;")
-        res_layout.addWidget(res_lbl)
-        res_layout.addWidget(self.res_text)
-        mid_layout.addWidget(self.results_card)
+        splitter.addWidget(left)
 
-        mid_layout.addStretch()
-        splitter.addWidget(mid_widget)
+        # ── MIDDLE: DNA Helix + Cross diagram
+        mid = QWidget()
+        mid.setMinimumWidth(200)
+        mid.setMaximumWidth(250)
+        mid_lay = QVBoxLayout(mid)
+        mid_lay.setContentsMargins(4, 14, 4, 14)
+        mid_lay.setSpacing(8)
 
-        # ── RIGHT: Punnett + feedback ─────────────────────────────
+        self.dna_widget = DnaHelixWidget(mid)
+        self.dna_widget.setFixedHeight(200)
+        self.dna_widget.set_loci_info("Locus T (Height)", "ACTIVE")
+        mid_lay.addWidget(self.dna_widget)
+
+        self.cross_diagram = CrossDiagramWidget(mid)
+        self.cross_diagram.setFixedHeight(190)
+        mid_lay.addWidget(self.cross_diagram)
+        mid_lay.addStretch()
+        splitter.addWidget(mid)
+
+        # ── RIGHT: Punnett + Verdict
         right_scroll = QScrollArea(self)
         right_scroll.setWidgetResizable(True)
+        right_scroll.setFrameShape(QFrame.NoFrame)
         right_content = QWidget()
-        right_layout = QVBoxLayout(right_content)
-        right_layout.setContentsMargins(4, 4, 4, 4)
-        right_layout.setSpacing(6)
+        right_lay = QVBoxLayout(right_content)
+        right_lay.setContentsMargins(8, 14, 14, 14)
+        right_lay.setSpacing(10)
 
-        punnett_lbl = QLabel("PUNNETT SQUARE", right_content)
-        punnett_lbl.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
-        right_layout.addWidget(punnett_lbl)
+        punnett_hdr = QLabel("PUNNETT SQUARE", right_content)
+        punnett_hdr.setStyleSheet(
+            "font-size: 9px; font-weight: 800; color: #6366f1; letter-spacing: 1px;"
+        )
+        right_lay.addWidget(punnett_hdr)
 
         self.punnett_widget = PunnettSquareWidget(right_content)
-        right_layout.addWidget(self.punnett_widget)
+        right_lay.addWidget(self.punnett_widget)
 
-        # Feedback card (Verdict Panel)
-        self.feedback_card = QFrame(right_content)
-        # objectName will be set dynamically to 'verdict-correct' or 'verdict-incorrect'
-        fb_layout = QVBoxLayout(self.feedback_card)
-        self.fb_label = QLabel(self.feedback_card)
-        self.fb_label.setWordWrap(True)
-        self.fb_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        # default neutral style
-        self.feedback_card.setObjectName("verdict-neutral")
-        fb_layout.addWidget(self.fb_label)
-        right_layout.addWidget(self.feedback_card)
+        # Verdict panel (inline, prominent)
+        verdict_hdr = QLabel("EVALUATION", right_content)
+        verdict_hdr.setStyleSheet(
+            "font-size: 9px; font-weight: 800; color: #6366f1; letter-spacing: 1px;"
+        )
+        right_lay.addWidget(verdict_hdr)
 
-        right_layout.addStretch()
+        self.verdict_panel = VerdictPanel(right_content)
+        right_lay.addWidget(self.verdict_panel)
+        right_lay.addStretch()
+
         right_scroll.setWidget(right_content)
         splitter.addWidget(right_scroll)
 
-        splitter.setSizes([230, 280, 290])
-        main_layout.addWidget(splitter)
+        splitter.setSizes([290, 220, 300])
+        root.addWidget(splitter)
 
-        self.adapter.genotype_selected.connect(self._on_hardware_genotype_selected)
+        self.adapter.genotype_selected.connect(self._on_hardware_genotype)
 
-    def _get_selected_geno(self, combo: QComboBox) -> str:
+    def _get_geno(self, combo: QComboBox) -> str:
         return combo.currentText()[:2]
 
-    def _on_hardware_genotype_selected(self, parent_idx: int, geno: str):
-        if len(geno) == 2 and geno in ["TT", "Tt", "tt"]:
+    def _on_hardware_genotype(self, parent_idx: int, geno: str):
+        if geno in ("TT", "Tt", "tt"):
             combo = self.p1_combo if parent_idx == 1 else self.p2_combo
             combo.setCurrentIndex(["TT", "Tt", "tt"].index(geno))
             self.led_controller.trigger_input_confirmed()
 
     def _run_cross(self):
-        p1_str = self._get_selected_geno(self.p1_combo)
-        p2_str = self._get_selected_geno(self.p2_combo)
-
-        p1 = MultiLocusGenotype.from_str(p1_str, ALLELE_MAP)
-        p2 = MultiLocusGenotype.from_str(p2_str, ALLELE_MAP)
+        p1s = self._get_geno(self.p1_combo)
+        p2s = self._get_geno(self.p2_combo)
+        p1 = MultiLocusGenotype.from_str(p1s, ALLELE_MAP)
+        p2 = MultiLocusGenotype.from_str(p2s, ALLELE_MAP)
         self.last_cross_result = execute_cross(p1, p2, MENDELIAN_COMPLETE_DOMINANCE, ALLELE_MAP)
 
         self.punnett_widget.display_punnett_square(self.last_cross_result.punnett_square)
 
-        # Update cross diagram
         ps = self.last_cross_result.punnett_square
-        row_gametes = [g[0] for g in ps.row_gametes]
-        col_gametes = [g[0] for g in ps.col_gametes]
-        offspring = list(dict.fromkeys(cell.zygote_genotype for row in ps.grid for cell in row))[:4]
-        ratios = self.last_cross_result.phenotype_ratios
         self.cross_diagram.set_cross(
-            p1_str, p2_str,
-            row_gametes, col_gametes,
-            offspring,
-            ratios if isinstance(ratios, dict) else {}
+            p1s, p2s,
+            [g[0] for g in ps.row_gametes],
+            [g[0] for g in ps.col_gametes],
+            list(dict.fromkeys(c.zygote_genotype for row in ps.grid for c in row))[:4],
+            self.last_cross_result.phenotype_ratios if isinstance(self.last_cross_result.phenotype_ratios, dict) else {}
         )
 
-        # Update loci
-        self.dna_widget.set_loci_info(f"T-locus ({p1_str[0]}/{p2_str[0]})", "ACTIVE")
+        self.dna_widget.set_loci_info(f"T-locus ({p1s[0]}/{p2s[0]})", "ACTIVE")
 
-        # Results text — concise
         gf = self.last_cross_result.genotype_frequencies
         pf = self.last_cross_result.phenotype_frequencies
-        geno_str = "  ".join(f"{k} {v*100:.0f}%" for k, v in gf.items())
-        pheno_str = "  ".join(f"{k} {v*100:.0f}%" for k, v in pf.items())
-        self.res_text.setText(
-            f"Cross: {p1_str} × {p2_str}\n"
-            f"Geno: {self.last_cross_result.genotype_ratios} → {geno_str}\n"
-            f"Pheno: {self.last_cross_result.phenotype_ratios} → {pheno_str}"
+        self.ratio_lbl.setText(
+            f"Geno: {self.last_cross_result.genotype_ratios}\n"
+            + "  ".join(f"{k} {v*100:.0f}%" for k, v in gf.items()) + "\n"
+            f"Pheno: {self.last_cross_result.phenotype_ratios}\n"
+            + "  ".join(f"{k} {v*100:.0f}%" for k, v in pf.items())
         )
 
-        # Evaluate
-        pred_text = self.pred_input.text().strip()
-        eval_report = evaluate_student_prediction(self.last_cross_result, pred_text,
-                                                   target_attribute="phenotype")
-        self.led_controller.trigger_prediction_result(eval_report.is_correct)
-
-        # Set verdict panel styling based on correctness
-        if eval_report.is_correct:
-            self.feedback_card.setObjectName("verdict-correct")
-            verdict_msg = "✓ CORRECT"
-        else:
-            self.feedback_card.setObjectName("verdict-incorrect")
-            verdict_msg = "✗ INCORRECT"
-        # Compose feedback text
-        feedback_html = f"{verdict_msg}<br><br>{eval_report.scientific_feedback}<br><br>Derivation: {eval_report.derivation_proof}"
-        self.fb_label.setText(feedback_html)
+        pred = self.pred_input.text().strip()
+        report = evaluate_student_prediction(self.last_cross_result, pred, target_attribute="phenotype")
+        self.led_controller.trigger_prediction_result(report.is_correct)
+        self.verdict_panel.set_result(report.is_correct, report.scientific_feedback, report.derivation_proof)
 
         self.btn_save.setEnabled(True)
-        self.save_status_label.setText("")
+        self.save_lbl.setText("")
 
     def _save_record(self):
         if not self.last_cross_result:
             return
-        p1_str = self._get_selected_geno(self.p1_combo)
-        p2_str = self._get_selected_geno(self.p2_combo)
-        pred_text = self.pred_input.text().strip()
-        eval_report = evaluate_student_prediction(self.last_cross_result, pred_text)
-
+        p1s = self._get_geno(self.p1_combo)
+        p2s = self._get_geno(self.p2_combo)
+        pred = self.pred_input.text().strip()
+        report = evaluate_student_prediction(self.last_cross_result, pred)
         rec = ExperimentRecord(
             experiment_id=f"EXP01-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
             timestamp=datetime.now().isoformat(),
             experiment_type="Monohybrid Inheritance (Single Locus)",
-            parent1_genotype=p1_str,
-            parent2_genotype=p2_str,
+            parent1_genotype=p1s, parent2_genotype=p2s,
             model_name=MENDELIAN_COMPLETE_DOMINANCE.model_name,
             model_assumptions=MENDELIAN_COMPLETE_DOMINANCE.scientific_assumptions,
-            student_prediction=pred_text,
+            student_prediction=pred,
             expected_genotypic_ratio=self.last_cross_result.genotype_ratios,
             expected_phenotypic_ratio=self.last_cross_result.phenotype_ratios,
             theoretical_frequencies=self.last_cross_result.phenotype_frequencies,
-            simulated_or_observed_counts={},
-            is_simulation=False,
-            simulation_seed=None,
-            sample_size=0,
-            chi_square_statistic=None,
-            degrees_of_freedom=None,
-            p_value=None,
-            statistical_conclusion=None,
-            error_classification=eval_report.error_category.value,
-            scientific_interpretation=eval_report.scientific_feedback
+            simulated_or_observed_counts={}, is_simulation=False, simulation_seed=None,
+            sample_size=0, chi_square_statistic=None, degrees_of_freedom=None,
+            p_value=None, statistical_conclusion=None,
+            error_classification=report.error_category.value,
+            scientific_interpretation=report.scientific_feedback
         )
         self.exp_store.save_experiment(rec)
         self.led_controller.trigger_experiment_complete()
-        self.save_status_label.setText(f"✓ Saved: {rec.experiment_id}")
+        self.save_lbl.setText(f"Saved: {rec.experiment_id}")
