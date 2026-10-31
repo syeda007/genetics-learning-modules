@@ -31,7 +31,7 @@ st.set_page_config(page_title="Genetics Lab", page_icon=os.path.join(BASE_DIR, "
 
 # ── Palette ────────────────────────────────────────────────────────────────────
 INDIGO, TEAL, AMBER, ROSE, GREEN, SKY, INK, MUTE = (
-    "#6366f1", "#14b8a6", "#f59e0b", "#f43f5e", "#10b981", "#0ea5e9", "#1a1d2e", "#64748b")
+    "#4f46e5", "#0d9488", "#d97706", "#e11d48", "#059669", "#0284c7", "#0f172a", "#64748b")
 PHENO_COLORS = [INDIGO, TEAL, AMBER, ROSE, SKY, GREEN]
 
 NAV = [
@@ -82,90 +82,132 @@ def ico(name, color="currentColor", size=24):
 # ── CSS ────────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-html, body, [class*="css"] { font-family:'Inter','Segoe UI',sans-serif; }
-.stApp { background: radial-gradient(1200px 500px at 85% -10%, #e9e7ff 0%, transparent 60%),
-                     radial-gradient(900px 500px at -10% 10%, #d9f7f1 0%, transparent 55%), #f8f9fc; }
-.block-container { padding-top: 1.6rem; max-width: 1280px; }
-header[data-testid="stHeader"] { background: transparent; }
-[data-testid="stSidebar"] { background:#fff; border-right:1px solid #e8eaf2; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap');
+:root { --ink:#0f172a; --mute:#64748b; --line:#e5e7ef; --navy:#0b1226; --accent:#4f46e5; --gold:#c8a24b; }
+html, body, [class*="css"] { font-family:'Inter','Segoe UI',sans-serif; color:var(--ink); }
+.stApp { background:#f5f6fa; }
+.block-container { padding-top:2.2rem; padding-bottom:3rem; max-width:1280px; }
+header[data-testid="stHeader"] { background:transparent; }
+[data-testid="stToolbar"], [data-testid="stDeployButton"], #MainMenu, footer { display:none !important; }
+h1,h2,h3 { font-family:'Source Serif 4', Georgia, serif; }
+
+/* sidebar */
+[data-testid="stSidebar"] { background:linear-gradient(180deg,#0b1226,#111a3a); border-right:none; }
+[data-testid="stSidebar"] * { color:#cbd5e1; }
+[data-testid="stSidebar"] hr { border-color:#ffffff1a; }
+[data-testid="stSidebar"] [role="radiogroup"] { gap:4px; }
+[data-testid="stSidebar"] [data-testid="stRadioOption"] { padding:11px 14px; border-radius:12px; transition:.15s; width:100%; min-height:46px; }
+[data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:first-child { display:none; }
+[data-testid="stSidebar"] [data-testid="stRadioOption"]:hover { background:#ffffff0f; }
+[data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] { background:#ffffff1c; box-shadow:inset 3px 0 0 var(--gold); }
+[data-testid="stSidebar"] [data-testid="stRadioOption"] p { font-size:15px; font-weight:500; color:#cbd5e1 !important; margin:0; }
+[data-testid="stSidebar"] [data-testid="stRadioOption"][data-selected="true"] p { color:#fff !important; font-weight:700; }
+[data-testid="stSidebar"] [data-testid="stRadioOption"] [data-testid="stMarkdownContainer"] p { display:flex; align-items:center; gap:12px; }
+.hero h1, .ptitle h2, .brand .nm, .tile .t, .verdict .vt { font-family:'Source Serif 4', Georgia, serif !important; }
+.brand { padding:6px 4px 18px; border-bottom:1px solid #ffffff1a; margin-bottom:16px; }
+.brand .nm { font-family:'Source Serif 4',serif; font-size:22px; font-weight:700; color:#fff !important; margin-top:8px; letter-spacing:.2px; }
+.brand .sb { font-size:10.5px; font-weight:700; letter-spacing:1.8px; color:var(--gold) !important; margin-top:2px; }
+.sbfoot { display:flex; gap:8px; flex-wrap:wrap; }
+.sbfoot span { font-size:11px; font-weight:600; border:1px solid #ffffff22; border-radius:99px; padding:4px 11px; display:inline-flex; align-items:center; gap:7px; }
+.sbfoot i { width:7px; height:7px; border-radius:50%; background:#34d399; display:inline-block; }
 
 /* hero */
-.hero { position:relative; overflow:hidden; border-radius:22px; padding:34px 38px; color:#fff;
-  background: linear-gradient(120deg,#4338ca,#6366f1 45%,#14b8a6); background-size:200% 200%;
-  animation: flow 12s ease infinite; box-shadow:0 18px 40px -18px rgba(79,70,229,.6); margin-bottom:22px; }
-@keyframes flow { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-.hero h1 { font-size:34px; font-weight:900; margin:0; letter-spacing:-.5px; }
-.hero p { margin:6px 0 0; opacity:.85; font-size:14px; font-weight:500; }
-.hero svg { position:absolute; right:20px; top:-10px; opacity:.9; }
-.helix-dot { animation: bob 3s ease-in-out infinite; }
-@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+.hero { position:relative; overflow:hidden; border-radius:20px; padding:40px 44px; color:#fff; margin-bottom:22px;
+  background:radial-gradient(600px 260px at 90% 0%, #3b3fa8 0%, transparent 70%), linear-gradient(135deg,#0b1226,#16225a);
+  box-shadow:0 24px 48px -28px rgba(11,18,38,.8); }
+.hero .eyebrow { font-size:11px; font-weight:700; letter-spacing:2.4px; color:var(--gold); }
+.hero h1 { font-size:42px; font-weight:700; margin:8px 0 6px; letter-spacing:-.5px; color:#fff; line-height:1.1; }
+.hero p { margin:0; color:#aab4d6; font-size:15px; font-weight:400; }
+.hero svg { position:absolute; right:30px; top:50%; transform:translateY(-50%); }
+.hero .tags { margin-top:20px; display:flex; gap:8px; flex-wrap:wrap; }
+.hero .tags span { font-size:12px; font-weight:600; border:1px solid #ffffff2e; color:#dbe2ff; border-radius:99px; padding:5px 13px; }
 
 /* stat tiles */
-.stat { background:#fff; border:1.5px solid #e8eaf2; border-radius:16px; padding:16px 18px;
-  transition:.2s; position:relative; overflow:hidden; }
-.stat:hover { transform:translateY(-3px); box-shadow:0 12px 26px -14px rgba(99,102,241,.5); }
-.stat .big { font-size:30px; font-weight:900; color:var(--c); line-height:1; }
-.stat .lbl { font-size:11px; font-weight:700; color:#94a3b8; letter-spacing:1.2px; text-transform:uppercase; margin-top:6px; }
-.stat .ico { position:absolute; right:12px; top:10px; opacity:.3; }
+.stat { background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px 20px; display:flex; gap:14px; align-items:center;
+  box-shadow:0 1px 2px rgba(15,23,42,.04); }
+.stat .ico { width:46px; height:46px; border-radius:13px; display:grid; place-items:center; flex:none;
+  background:color-mix(in srgb,var(--c) 11%,white); }
+.stat .big { font-size:26px; font-weight:800; color:var(--ink); line-height:1.05; letter-spacing:-.4px; }
+.stat .lbl { font-size:11px; font-weight:600; color:var(--mute); letter-spacing:.9px; text-transform:uppercase; margin-top:3px; }
 
 /* page title */
-.ptitle { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
-.ptitle .badge { width:52px; height:52px; border-radius:16px; display:grid; place-items:center; font-size:26px;
-  background:linear-gradient(135deg,var(--c),#fff0); background-color:color-mix(in srgb,var(--c) 18%,white);
-  border:1.5px solid color-mix(in srgb,var(--c) 40%,white); }
-.ptitle h2 { margin:0; font-size:26px; font-weight:900; color:#1a1d2e; letter-spacing:-.4px; }
-.chip { display:inline-block; border-radius:99px; padding:3px 11px; font-size:11px; font-weight:700; margin-right:6px;
-  background:color-mix(in srgb,var(--c) 12%,white); color:var(--c); border:1px solid color-mix(in srgb,var(--c) 30%,white); }
+.ptitle { margin-bottom:22px; padding-bottom:16px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:16px; }
+.ptitle .badge { width:56px; height:56px; border-radius:16px; display:grid; place-items:center; flex:none;
+  background:var(--c); box-shadow:0 10px 20px -10px var(--c); }
+.ptitle .eb { font-size:11px; font-weight:700; letter-spacing:2px; color:var(--mute); }
+.ptitle h2 { margin:2px 0 6px; font-size:32px; font-weight:700; color:var(--ink); letter-spacing:-.4px; line-height:1.1; }
+.chip { display:inline-block; border-radius:99px; padding:3px 11px; font-size:11.5px; font-weight:600; margin-right:6px;
+  background:#fff; color:#334155; border:1px solid var(--line); }
+.chip::before { content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--c); margin-right:7px; }
 
-/* panel */
-.shdr { font-size:11px; font-weight:800; color:#6366f1; letter-spacing:1.6px; text-transform:uppercase; margin:6px 0 8px; }
-div[data-testid="stVerticalBlockBorderWrapper"] { border-radius:16px !important; }
+/* panels & forms */
+.shdr { font-size:11px; font-weight:700; color:var(--mute); letter-spacing:1.8px; text-transform:uppercase; margin:18px 0 10px;
+  display:flex; align-items:center; gap:12px; }
+.shdr::after { content:''; flex:1; height:1px; background:var(--line); }
+[data-testid="stForm"], div[data-testid="stVerticalBlockBorderWrapper"] {
+  background:#fff; border:1px solid var(--line) !important; border-radius:18px !important; box-shadow:0 1px 2px rgba(15,23,42,.04), 0 12px 28px -22px rgba(15,23,42,.35); }
+[data-testid="stForm"] { padding:22px; }
+[data-testid="stForm"] .shdr { margin-top:0; }
+[data-testid="stExpander"] { background:#fff; border:1px solid var(--line); border-radius:14px; }
+[data-testid="stPlotlyChart"] { background:#fff; border:1px solid var(--line); border-radius:16px; padding:8px; }
+label p { font-weight:600 !important; font-size:13px !important; color:#334155 !important; }
+[data-baseweb="input"], [data-baseweb="select"] > div { min-height:46px; border-radius:12px !important; background:#f8f9fc; }
+[data-testid="stSegmentedControl"] button { min-height:44px; font-weight:700; }
+.stButton > button, [data-testid="stFormSubmitButton"] > button { min-height:48px; border-radius:12px; font-weight:700; letter-spacing:.2px; }
+.stButton > button[kind="primary"], [data-testid="stFormSubmitButton"] > button[kind="primary"],
+[data-testid="stFormSubmitButton"] > button[kind="primaryFormSubmit"] {
+  background:linear-gradient(180deg,#4f46e5,#4338ca); color:#fff; border:none; box-shadow:0 10px 20px -12px #4338ca; }
+.stButton > button[kind="primary"]:hover, [data-testid="stFormSubmitButton"] > button:hover { filter:brightness(1.08); }
+.stButton > button[kind="secondary"] { background:#fff; border:1px solid var(--line); color:var(--ink); }
+.stButton > button[kind="secondary"]:hover { border-color:var(--accent); color:var(--accent); }
 
 /* punnett */
-.pun { display:grid; gap:6px; margin:4px 0 10px; }
-.pun .h { display:grid; place-items:center; font-weight:800; font-size:13px; color:#fff; border-radius:50%;
-  width:38px; height:38px; margin:auto; background:#475569; }
-.pun .h.r { background:#ec4899; } .pun .h.c { background:#0ea5e9; }
-.pun .cell { border-radius:12px; padding:12px 4px; text-align:center; font-weight:800; font-size:15px; color:#fff;
-  transition:.15s; cursor:default; animation:pop .45s ease backwards; }
-.pun .cell:hover { transform:scale(1.08); z-index:2; box-shadow:0 8px 18px -8px rgba(0,0,0,.4); }
-.pun.big .cell { font-size:12.5px; padding:8px 2px; }
-.pun .ic { background:rgba(255,255,255,.88); border-radius:50%; width:48px; height:48px; margin:0 auto 4px;
-  display:grid; place-items:center; } .pun.big .ic { width:40px; height:40px; }
-@keyframes pop { from{opacity:0; transform:scale(.6)} to{opacity:1; transform:scale(1)} }
-.legend { display:flex; flex-wrap:wrap; gap:8px; margin:2px 0 6px; }
-.legend span { font-size:12px; font-weight:700; color:#334155; display:inline-flex; align-items:center; gap:6px;
-  background:#fff; border:1px solid #e8eaf2; border-radius:99px; padding:3px 11px; }
-.legend i { width:11px; height:11px; border-radius:50%; display:inline-block; }
+.pun { display:grid; gap:8px; margin:4px 0 10px; background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; }
+.pun .h { display:grid; place-items:center; font-weight:700; font-size:13px; color:#fff; border-radius:50%;
+  width:38px; height:38px; margin:auto; background:var(--navy); }
+.pun .h.r { background:#475569; }
+.pun .cell { border-radius:14px; padding:10px 4px; text-align:center; font-weight:700; font-size:15px; letter-spacing:.3px;
+  background:color-mix(in srgb,var(--c) 11%,white); border:1.5px solid color-mix(in srgb,var(--c) 45%,white);
+  color:color-mix(in srgb,var(--c) 65%,black); transition:.15s; animation:pop .4s ease backwards; }
+.pun .cell:hover { transform:translateY(-2px); box-shadow:0 10px 18px -12px var(--c); }
+.pun.big .cell { font-size:12.5px; padding:7px 2px; }
+@keyframes pop { from{opacity:0; transform:scale(.8)} to{opacity:1; transform:scale(1)} }
+.pun .ic { background:#fff; border-radius:50%; width:50px; height:50px; margin:0 auto 4px; display:grid; place-items:center;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 25%,white); } .pun.big .ic { width:40px; height:40px; }
+.legend { display:flex; flex-wrap:wrap; gap:8px; margin:2px 0 8px; }
+.legend span { font-size:12px; font-weight:600; color:#334155; display:inline-flex; align-items:center; gap:7px;
+  background:#fff; border:1px solid var(--line); border-radius:99px; padding:4px 12px; }
+.legend i { width:10px; height:10px; border-radius:50%; display:inline-block; }
+.plgrid { display:flex; flex-wrap:wrap; gap:4px; background:linear-gradient(#f4f8ff,#eef6e6 85%,#d9ecb8);
+  border:1px solid var(--line); border-radius:16px; padding:14px; margin-bottom:12px; }
+.plgrid .pl { animation:pop .4s ease backwards; } .plgrid .pl:hover { transform:scale(1.2); }
 
-.plgrid { display:flex; flex-wrap:wrap; gap:4px; background:linear-gradient(#f0f9ff,#ecfccb 85%,#bef264);
-  border:1.5px solid #e8eaf2; border-radius:16px; padding:12px; margin-bottom:12px; }
-.plgrid .pl { animation:pop .4s ease backwards; } .plgrid .pl:hover { transform:scale(1.25); }
 /* verdict */
-.verdict { border-radius:16px; padding:16px 20px; display:flex; gap:16px; align-items:center; margin:10px 0;
-  border:1.5px solid; animation:slide .4s ease; }
-@keyframes slide { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
-.verdict .vi { line-height:1; }
-.verdict .vt { font-weight:900; font-size:16px; letter-spacing:.3px; }
-.verdict .vd { font-size:12.5px; opacity:.85; margin-top:2px; }
-.v-ok { background:#ecfdf5; border-color:#6ee7b7; color:#065f46; }
-.v-bad { background:#fff1f2; border-color:#fda4af; color:#9f1239; }
-.v-warn { background:#fffbeb; border-color:#fcd34d; color:#92400e; }
+.verdict { border-radius:16px; padding:18px 22px; display:flex; gap:18px; align-items:center; margin:2px 0 14px; background:#fff;
+  border:1px solid var(--line); border-left:6px solid var(--c); box-shadow:0 12px 26px -20px var(--c); animation:slide .35s ease; }
+@keyframes slide { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+.verdict .vi { width:50px; height:50px; border-radius:50%; display:grid; place-items:center; flex:none;
+  background:color-mix(in srgb,var(--c) 12%,white); color:var(--c); }
+.verdict .vt { font-family:'Source Serif 4',serif; font-weight:700; font-size:21px; color:var(--ink); }
+.verdict .vd { font-size:13px; color:var(--mute); margin-top:2px; line-height:1.45; }
+.v-ok { --c:#059669; } .v-bad { --c:#e11d48; } .v-warn { --c:#d97706; }
 
-/* exp tiles */
-.tile { background:#fff; border:1.5px solid #e8eaf2; border-radius:18px; padding:18px; height:100%;
-  transition:.2s; border-top:5px solid var(--c); }
-.tile:hover { transform:translateY(-4px); box-shadow:0 16px 30px -16px var(--c); }
-.tile .e { font-size:34px; } .tile .n { font-size:11px; font-weight:800; color:var(--c); letter-spacing:1.4px; }
-.tile .t { font-size:17px; font-weight:800; color:#1a1d2e; margin-top:2px; }
+/* dashboard tiles */
+.tile { padding:4px 2px 2px; }
+.tile .row { display:flex; justify-content:space-between; align-items:flex-start; }
+.tile .ib { width:48px; height:48px; border-radius:14px; display:grid; place-items:center; background:var(--c); box-shadow:0 10px 18px -10px var(--c); }
+.tile .no { font-family:'Source Serif 4',serif; font-size:38px; font-weight:600; color:#e2e5ee; line-height:1; }
+.tile .t { font-family:'Source Serif 4',serif; font-size:21px; font-weight:700; color:var(--ink); margin-top:14px; }
+.tile .d { font-size:13px; color:var(--mute); margin:2px 0 10px; }
 
-.stButton > button[kind="primary"] { background:linear-gradient(135deg,#6366f1,#4f46e5); border:none; color:#fff;
-  border-radius:12px; font-weight:800; padding:.55rem 1.1rem; box-shadow:0 8px 18px -10px #4f46e5; }
-.stButton > button[kind="primary"]:hover { transform:translateY(-1px); }
-.stButton > button[kind="secondary"] { border-radius:12px; font-weight:700; }
-[data-testid="stSidebar"] [role="radiogroup"] label { padding:7px 10px; border-radius:10px; transition:.15s; }
-[data-testid="stSidebar"] [role="radiogroup"] label:hover { background:#eef2ff; }
+.idle { border:1.5px dashed #c5cbe0; border-radius:20px; min-height:380px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:12px; color:#94a3b8; font-weight:600; font-size:14px; background:#ffffffb0; }
+
+@media (max-width: 1024px) {
+  .block-container { padding:1.2rem 1rem 3rem; }
+  .hero { padding:28px 24px; } .hero h1 { font-size:32px; } .hero svg { display:none; }
+  .ptitle h2 { font-size:26px; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -173,11 +215,11 @@ div[data-testid="stVerticalBlockBorderWrapper"] { border-radius:16px !important;
 # ── Helpers ────────────────────────────────────────────────────────────────────
 def style_fig(fig, h=320, legend=True):
     fig.update_layout(
-        height=h, margin=dict(l=10, r=10, t=30, b=10), paper_bgcolor="rgba(0,0,0,0)",
+        height=h, margin=dict(l=14, r=14, t=24, b=10), paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter, sans-serif", color=INK, size=12),
         showlegend=legend, legend=dict(orientation="h", y=-0.15, x=0.5, xanchor="center"),
         colorway=PHENO_COLORS, hoverlabel=dict(font_family="Inter"))
-    fig.update_xaxes(gridcolor="#eef0f6", zeroline=False)
+    fig.update_xaxes(gridcolor="#eef0f6", zeroline=False, linecolor="#e5e7ef")
     fig.update_yaxes(gridcolor="#eef0f6", zeroline=False)
     return fig
 
@@ -186,10 +228,12 @@ def show(fig, key=None):
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False}, key=key)
 
 
-def title(emoji, text, color, chips=()):
+def title(icon, text, color, chips=()):
     ch = "".join(f"<span class='chip' style='--c:{c}'>{t}</span>" for t, c in chips)
-    st.markdown(f"<div class='ptitle' style='--c:{color}'><div class='badge'>{ico(emoji, color, 28)}</div>"
-                f"<div><h2>{text}</h2><div style='margin-top:4px'>{ch}</div></div></div>", unsafe_allow_html=True)
+    n = st.session_state.get("nav", "")
+    eb = f"EXPERIMENT 0{n[-1]}" if n.startswith("exp") else ""
+    st.markdown(f"<div class='ptitle' style='--c:{color}'><div class='badge'>{ico(icon, '#fff', 28)}</div>"
+                f"<div><div class='eb'>{eb}</div><h2>{text}</h2><div>{ch}</div></div></div>", unsafe_allow_html=True)
 
 
 def shdr(t):
@@ -197,12 +241,12 @@ def shdr(t):
 
 
 def stat(big, label, color, icon):
-    return (f"<div class='stat' style='--c:{color}'><div class='ico'>{ico(icon, color, 34)}</div>"
-            f"<div class='big'>{big}</div><div class='lbl'>{label}</div></div>")
+    return (f"<div class='stat' style='--c:{color}'><div class='ico'>{ico(icon, color, 24)}</div>"
+            f"<div><div class='big'>{big}</div><div class='lbl'>{label}</div></div></div>")
 
 
 def verdict(kind, icon, head, detail=""):
-    st.markdown(f"<div class='verdict v-{kind}'><div class='vi'>{ico(icon, 'currentColor', 38)}</div><div>"
+    st.markdown(f"<div class='verdict v-{kind}'><div class='vi'>{ico(icon, 'currentColor', 26)}</div><div>"
                 f"<div class='vt'>{head}</div><div class='vd'>{detail}</div></div></div>", unsafe_allow_html=True)
 
 
@@ -258,7 +302,7 @@ def punnett_html(cr, colors, big=False):
         html.append(f"<div class='h r'>{rg}</div>")
         for i, c in enumerate(row):
             col = colors[c.zygote_phenotype]
-            html.append(f"<div class='cell' style='background:{col};animation-delay:{i*25}ms' "
+            html.append(f"<div class='cell' style='--c:{col};animation-delay:{i*25}ms' "
                         f"title='{short(c.zygote_phenotype)} · p={c.probability:.3f}'>"
                         f"<div class='ic'>{plant_svg(c.zygote_phenotype, 30 if big else 40)}</div>{c.zygote_genotype}</div>")
     html.append("</div>")
@@ -287,10 +331,11 @@ def ratio_compare(student, expected, h=240):
 
 def cross_panel(cr, pred_ratio, big=False):
     rep = evaluate_student_prediction(cr, pred_ratio, target_attribute="phenotype")
+    fb = re.sub(r"^(CORRECT|DISCREPANCY)[^:]{0,40}:\s*", "", rep.scientific_feedback)
     if rep.is_correct:
-        verdict("ok", "target", "Correct", rep.scientific_feedback)
+        verdict("ok", "target", "Correct", fb)
     else:
-        verdict("bad", "x_circle", "Not quite", rep.scientific_feedback)
+        verdict("bad", "x_circle", "Not quite", fb)
         cmp_fig = ratio_compare(pred_ratio, rep.expected_ratio)
         if cmp_fig:
             show(cmp_fig, None)
@@ -312,6 +357,10 @@ def cross_panel(cr, pred_ratio, big=False):
         fig.update_layout(yaxis=dict(autorange="reversed"), xaxis_tickformat=".0%")
         show(style_fig(fig, 280, legend=False), None)
 
+def idle():
+    st.markdown(f"<div class='idle'>{ico('dna', '#a5b4fc', 64)}<div>Press Enter to run</div></div>", unsafe_allow_html=True)
+
+
 def go_to(key):
     st.session_state.nav = key
 
@@ -321,21 +370,24 @@ if "nav" not in st.session_state:
     st.session_state.nav = "dash"
 
 with st.sidebar:
-    st.markdown("<div>"+ico("dna", "#6366f1", 40)+"</div>"
-                "<div style='font-size:18px;font-weight:900;color:#1a1d2e;margin-top:4px'>Genetics Lab</div>"
-                "<div style='font-size:11px;color:#6366f1;font-weight:700;letter-spacing:1px;margin-bottom:12px'>MODULE 01 · MENDELIAN</div>",
-                unsafe_allow_html=True)
+    st.markdown(f"<div class='brand'>{ico('dna', '#c8a24b', 34)}<div class='nm'>Genetics Lab</div>"
+                "<div class='sb'>MODULE 01 · MENDELIAN</div></div>", unsafe_allow_html=True)
     st.radio("nav", [k for k, _, _ in NAV], format_func=lambda k: NAV_LABEL[k], key="nav", label_visibility="collapsed")
-    st.markdown("---")
-    st.markdown("<div class='legend'><span><i style='background:#10b981'></i>Engine online</span>"
-                "<span><i style='background:#6366f1'></i>24/24 tests</span></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:28px'></div><div class='sbfoot'><span><i></i>Engine online</span>"
+                "<span>24/24 tests</span></div>", unsafe_allow_html=True)
 
 page = st.session_state.nav
+
+# Every experiment starts fresh: wipe all widget/sim state when the page changes.
+if st.session_state.get("_last_page") != page:
+    for k in [k for k in st.session_state if k not in ("nav", "_last_page")]:
+        del st.session_state[k]
+    st.session_state["_last_page"] = page
 import urllib.parse as _up
 _css = "".join(
-    "[data-testid='stSidebar'] [role='radiogroup'] label:nth-of-type(%d) > div:last-child::before{content:'';display:inline-block;"
-    "width:20px;height:20px;margin-right:10px;vertical-align:-4px;background:url(\"data:image/svg+xml;utf8,%s\") no-repeat center/contain;}"
-    % (i + 1, _up.quote(f"<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#6366f1' "
+    "[data-testid='stSidebar'] [role='radiogroup'] > :nth-child(%d) [data-testid='stMarkdownContainer'] p::before{content:'';display:inline-block;"
+    "width:20px;height:20px;flex:none;background:url(\"data:image/svg+xml;utf8,%s\") no-repeat center/contain;}"
+    % (i + 1, _up.quote(f"<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='#a5b4fc' "
                        f"stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'>{ICONS[ic]}</svg>"))
     for i, (_, ic, _) in enumerate(NAV))
 st.markdown(f"<style>{_css}</style>", unsafe_allow_html=True)
@@ -344,31 +396,39 @@ st.markdown(f"<style>{_css}</style>", unsafe_allow_html=True)
 # DASHBOARD
 # ══════════════════════════════════════════════════════════════════════════════
 if page == "dash":
-    helix = "".join(
-        f"<circle class='helix-dot' cx='{20 + i*22}' cy='{60 + 38*np.sin(i/1.6):.1f}' r='7' fill='#fff' style='animation-delay:{i*.2}s'/>"
-        f"<circle class='helix-dot' cx='{20 + i*22}' cy='{60 - 38*np.sin(i/1.6):.1f}' r='7' fill='#fde68a' style='animation-delay:{i*.2+.1}s'/>"
-        f"<line x1='{20+i*22}' x2='{20+i*22}' y1='{60 + 38*np.sin(i/1.6):.1f}' y2='{60 - 38*np.sin(i/1.6):.1f}' stroke='#fff' stroke-opacity='.4' stroke-width='2'/>"
-        for i in range(12))
-    st.markdown(f"""<div class='hero'><svg width='290' height='130' viewBox='0 0 290 130'>{helix}</svg>
-        <h1>Genetics Lab</h1><p>Cross · Count · Test · Simulate</p></div>""", unsafe_allow_html=True)
+    xs = np.linspace(0, 300, 120)
+    w1 = " ".join(f"{x:.0f},{70 + 42*np.sin(x/24):.1f}" for x in xs)
+    w2 = " ".join(f"{x:.0f},{70 - 42*np.sin(x/24):.1f}" for x in xs)
+    rungs = "".join(f"<line x1='{x}' x2='{x}' y1='{70 + 42*np.sin(x/24):.1f}' y2='{70 - 42*np.sin(x/24):.1f}' "
+                    f"stroke='#fff' stroke-opacity='.22' stroke-width='2'/>" for x in range(6, 300, 14))
+    st.markdown(f"""<div class='hero'><svg width='310' height='140' viewBox='0 0 310 140'>{rungs}
+        <polyline points='{w1}' fill='none' stroke='#c8a24b' stroke-width='3' stroke-linecap='round'/>
+        <polyline points='{w2}' fill='none' stroke='#e0e7ff' stroke-width='3' stroke-linecap='round'/></svg>
+        <div class='eyebrow'>MODULE 01 · MENDELIAN GENETICS</div>
+        <h1>Genetics Laboratory</h1><p>Cross, count, test and simulate inheritance.</p>
+        <div class='tags'><span>6 experiments</span><span>Offline</span><span>Tablet ready</span></div></div>""", unsafe_allow_html=True)
 
     s = st.columns(4)
     for col, (b, l, c, i) in zip(s, [("6", "Experiments", INDIGO, "flask"), ("100%", "Deterministic", TEAL, "shield"),
-                                     ("<2ms", "Offline AI", AMBER, "bolt"), ("24/24", "Tests passing", GREEN, "check_circle")]):
+                                     ("<2 ms", "Offline AI", AMBER, "bolt"), ("24/24", "Tests passing", GREEN, "check_circle")]):
         col.markdown(stat(b, l, c, i), unsafe_allow_html=True)
     st.write("")
 
-    tiles = [("exp1", "sprout", "EXP 01", "Monohybrid", INDIGO), ("exp2", "dice", "EXP 02", "Dihybrid", TEAL),
-             ("exp3", "flask", "EXP 03", "Test Cross", AMBER), ("exp4", "bars", "EXP 04", "Chi-Square", ROSE),
-             ("exp5", "trend", "EXP 05", "Simulation", SKY), ("exp6", "cpu", "EXP 06", "AI Diagnostics", GREEN)]
-    shdr("LAUNCH AN EXPERIMENT")
+    tiles = [("exp1", "sprout", "01", "Monohybrid Cross", "Single-locus segregation", INDIGO),
+             ("exp2", "dice", "02", "Dihybrid Cross", "Independent assortment", TEAL),
+             ("exp3", "flask", "03", "Test Cross", "Zygosity discrimination", AMBER),
+             ("exp4", "bars", "04", "Chi-Square", "Goodness of fit", ROSE),
+             ("exp5", "trend", "05", "Simulation", "Sampling variation", SKY),
+             ("exp6", "cpu", "06", "AI Diagnostics", "Offline error classifier", GREEN)]
+    shdr("EXPERIMENTS")
     for row in (tiles[:3], tiles[3:]):
         cols = st.columns(3)
-        for col, (k, e, n, t, c) in zip(cols, row):
-            with col:
-                st.markdown(f"<div class='tile' style='--c:{c}'><div class='e'>{ico(e, c, 34)}</div>"
-                            f"<div class='n'>{n}</div><div class='t'>{t}</div></div>", unsafe_allow_html=True)
-                st.button("Open →", key=f"go_{k}", on_click=go_to, args=(k,), use_container_width=True)
+        for col, (k, e, n, t, d, c) in zip(cols, row):
+            with col.container(border=True):
+                st.markdown(f"<div class='tile' style='--c:{c}'><div class='row'><div class='ib'>{ico(e, '#fff', 24)}</div>"
+                            f"<div class='no'>{n}</div></div><div class='t'>{t}</div><div class='d'>{d}</div></div>",
+                            unsafe_allow_html=True)
+                st.button("Open", key=f"go_{k}", on_click=go_to, args=(k,), use_container_width=True)
         st.write("")
 
     l, r = st.columns(2)
@@ -392,8 +452,8 @@ if page == "dash":
     nx = st.columns(4)
     for col, (n, t, e) in zip(nx, [("02", "Extensions", "layers"), ("03", "Linkage", "link"),
                                    ("04", "Populations", "globe"), ("05", "Quantitative", "trend")]):
-        col.markdown(f"<div class='stat' style='--c:#94a3b8;opacity:.75'><div class='ico'>{ico(e, '#64748b', 34)}</div>"
-                     f"<div class='big' style='font-size:20px'>{t}</div><div class='lbl'>Module {n}</div></div>",
+        col.markdown(f"<div class='stat' style='--c:#94a3b8;opacity:.8'><div class='ico'>{ico(e, '#64748b', 24)}</div>"
+                     f"<div><div class='big' style='font-size:17px'>{t}</div><div class='lbl'>Module {n}</div></div></div>",
                      unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -404,17 +464,25 @@ elif page == "exp1":
     left, right = st.columns([1, 1.7], gap="large")
     allele_map = {'T': TALL_ALLELE, 't': DWARF_ALLELE}
     with left:
-        with st.container(border=True):
+        with st.form("f_exp1"):
             shdr("PARENTS")
-            g1 = st.segmented_control("Parent 1 (female)", ["TT", "Tt", "tt"], default="Tt", key="e1p1") or "Tt"
-            g2 = st.segmented_control("Parent 2 (male)", ["TT", "Tt", "tt"], default="Tt", key="e1p2") or "Tt"
-            pred = st.text_input("Your ratio guess", "3:1")
+            g1 = st.segmented_control("Parent 1 (female)", ["TT", "Tt", "tt"], default="Tt") or "Tt"
+            g2 = st.segmented_control("Parent 2 (male)", ["TT", "Tt", "tt"], default="Tt") or "Tt"
+            pred = st.text_input("Your ratio guess", "", placeholder="e.g. 3:1")
+            if st.form_submit_button("Run cross", type="primary", use_container_width=True):
+                st.session_state.r1 = (g1, g2, pred)
         with st.expander("Theory"):
             st.write(MENDELIAN_BACKGROUND["exp01_scientific_basis"])
-    cr = execute_cross(MultiLocusGenotype.from_str(g1, allele_map), MultiLocusGenotype.from_str(g2, allele_map),
-                       MENDELIAN_COMPLETE_DOMINANCE, allele_map)
+    r = st.session_state.get("r1")
     with right:
-        cross_panel(cr, pred)
+        if not r:
+            idle()
+        elif not r[2].strip():
+            verdict("warn", "pencil", "Type your ratio guess first")
+        else:
+            cr = execute_cross(MultiLocusGenotype.from_str(r[0], allele_map), MultiLocusGenotype.from_str(r[1], allele_map),
+                               MENDELIAN_COMPLETE_DOMINANCE, allele_map)
+            cross_panel(cr, r[2])
 
 # ══════════════════════════════════════════════════════════════════════════════
 # EXP 02
@@ -425,17 +493,25 @@ elif page == "exp2":
     di_map = {'A': LOCUS_A_DOM, 'a': LOCUS_A_REC, 'B': LOCUS_B_DOM, 'b': LOCUS_B_REC}
     choices = ["AaBb", "AABB", "AABb", "AAbb", "AaBB", "Aabb", "aaBB", "aaBb", "aabb"]
     with left:
-        with st.container(border=True):
+        with st.form("f_exp2"):
             shdr("PARENTS")
             g1 = st.selectbox("Parent 1 (female)", choices, 0)
             g2 = st.selectbox("Parent 2 (male)", choices, 0)
-            pred = st.text_input("Your ratio guess", "9:3:3:1")
+            pred = st.text_input("Your ratio guess", "", placeholder="e.g. 9:3:3:1")
+            if st.form_submit_button("Run cross", type="primary", use_container_width=True):
+                st.session_state.r2 = (g1, g2, pred)
         with st.expander("Theory"):
             st.write(MENDELIAN_BACKGROUND["exp02_scientific_basis"])
-    cr = execute_cross(MultiLocusGenotype.from_str(g1, di_map), MultiLocusGenotype.from_str(g2, di_map),
-                       DIHYBRID_INDEPENDENT_ASSORTMENT, di_map)
+    r = st.session_state.get("r2")
     with right:
-        cross_panel(cr, pred, big=True)
+        if not r:
+            idle()
+        elif not r[2].strip():
+            verdict("warn", "pencil", "Type your ratio guess first")
+        else:
+            cr = execute_cross(MultiLocusGenotype.from_str(r[0], di_map), MultiLocusGenotype.from_str(r[1], di_map),
+                               DIHYBRID_INDEPENDENT_ASSORTMENT, di_map)
+            cross_panel(cr, r[2], big=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # EXP 03
@@ -444,16 +520,20 @@ elif page == "exp3":
     title("flask", "Test Cross", AMBER, [("Is it AA or Aa?", AMBER)])
     left, right = st.columns([1, 2], gap="large")
     with left:
-        with st.container(border=True):
+        with st.form("f_exp3"):
             shdr("MYSTERY PLANT × aa")
-            truth = st.segmented_control("Hidden genotype (truth)", ["AA", "Aa"], default="Aa", key="tc_truth") or "Aa"
+            truth = st.segmented_control("Hidden genotype (truth)", ["AA", "Aa"], default="Aa") or "Aa"
             n = st.slider("Offspring (N)", 5, 200, 40, 5)
-            if "tc_seed" not in st.session_state:
-                st.session_state.tc_seed = 1
-            st.button("Resample", type="primary", use_container_width=True,
-                      on_click=lambda: st.session_state.update(tc_seed=st.session_state.tc_seed + 1))
+            if st.form_submit_button("Run test cross", type="primary", use_container_width=True):
+                prev = st.session_state.get("r3")
+                st.session_state.r3 = (truth, n, (prev[2] + 1) if prev else 1)
+    r = st.session_state.get("r3")
     with right:
-        rng = np.random.default_rng(st.session_state.tc_seed)
+        if not r:
+            idle()
+            st.stop()
+        truth, n, seed = r
+        rng = np.random.default_rng(seed)
         rec = 0 if truth == "AA" else int(rng.binomial(n, 0.5))
         dom = n - rec
         order = np.concatenate([np.zeros(dom), np.ones(rec)])
@@ -467,7 +547,7 @@ elif page == "exp3":
         tall_svg, dwarf_svg = plant_svg("tall", 46), plant_svg("dwarf", 46)
         cells = "".join(f"<div class='pl' style='animation-delay:{i*12}ms'>{dwarf_svg if o else tall_svg}</div>"
                         for i, o in enumerate(order))
-        shdr(f"OFFSPRING &nbsp; {plant_svg('tall', 22)} A_ tall &nbsp; {plant_svg('dwarf', 22)} aa dwarf")
+        shdr(f"OFFSPRING &nbsp; {plant_svg('tall', 22)} dominant &nbsp; {plant_svg('dwarf', 22)} recessive")
         st.markdown(f"<div class='plgrid'>{cells}</div>", unsafe_allow_html=True)
 
         m = st.columns(3)
@@ -496,13 +576,21 @@ elif page == "exp4":
                "Mendel · Dihybrid": ("9:3:3:1", "315, 108, 101, 32"),
                "Linked genes (deviation)": ("1:1:1:1", "450, 48, 52, 450")}
     with left:
-        with st.container(border=True):
-            shdr("DATA")
-            pk = st.selectbox("Preset", list(presets))
-            d_ratio, d_counts = presets[pk]
+        shdr("DATA")
+        pk = st.selectbox("Preset", list(presets))
+        d_ratio, d_counts = presets[pk]
+        with st.form("f_exp4"):
             ratio_in = st.text_input("Expected ratio", d_ratio, key=f"r_{pk}")
             counts_in = st.text_input("Observed counts", d_counts, key=f"c_{pk}")
-            alpha = st.segmented_control("α", [0.10, 0.05, 0.01], default=0.05, key="alpha") or 0.05
+            alpha = st.segmented_control("α", [0.10, 0.05, 0.01], default=0.05) or 0.05
+            if st.form_submit_button("Calculate", type="primary", use_container_width=True):
+                st.session_state.r4 = (pk, ratio_in, counts_in, alpha)
+    r = st.session_state.get("r4")
+    if not r or r[0] != pk:
+        with right:
+            idle()
+        st.stop()
+    _, ratio_in, counts_in, alpha = r
 
     props = parse_ratio_string(ratio_in)
     try:
@@ -517,9 +605,9 @@ elif page == "exp4":
             res = calculate_chi_square(dict(zip(names, counts)), dict(zip(names, props)), alpha=alpha)
             ok = not res.is_significant
             m = st.columns(3)
-            m[0].markdown(stat(f"{res.chi_square_statistic:.2f}", "χ² statistic", INDIGO, "bars"), unsafe_allow_html=True)
+            m[0].markdown(stat(f"{res.chi_square_statistic:.2f}", "χ²", INDIGO, "bars"), unsafe_allow_html=True)
             m[1].markdown(stat(f"{res.p_value:.3g}", "p-value", GREEN if ok else ROSE, "target"), unsafe_allow_html=True)
-            m[2].markdown(stat(res.degrees_of_freedom, "degrees of freedom", AMBER, "layers"), unsafe_allow_html=True)
+            m[2].markdown(stat(res.degrees_of_freedom, "df", AMBER, "layers"), unsafe_allow_html=True)
             st.write("")
 
             if ok:
@@ -571,11 +659,19 @@ elif page == "exp5":
     title("trend", "Population Simulation", SKY, [("Sampling noise", SKY), ("Law of large numbers", INDIGO)])
     left, right = st.columns([1, 2], gap="large")
     with left:
-        with st.container(border=True):
+        with st.form("f_exp5"):
             shdr("SETUP")
-            model = st.segmented_control("Cross", ["Tt × Tt", "AaBb × AaBb"], default="Tt × Tt", key="sim_model") or "Tt × Tt"
+            model = st.segmented_control("Cross", ["Tt × Tt", "AaBb × AaBb"], default="Tt × Tt") or "Tt × Tt"
             N = st.select_slider("Sample size N", [20, 50, 100, 500, 1000, 5000], 100)
             seed = st.number_input("Seed", value=42, step=1)
+            if st.form_submit_button("Run simulation", type="primary", use_container_width=True):
+                st.session_state.r5 = (model, N, seed)
+    r = st.session_state.get("r5")
+    if not r:
+        with right:
+            idle()
+        st.stop()
+    model, N, seed = r
 
     if model == "Tt × Tt":
         am = {'T': TALL_ALLELE, 't': DWARF_ALLELE}
@@ -596,7 +692,7 @@ elif page == "exp5":
         pval = sim.chi_square_result.p_value
         m[0].markdown(stat(N, "Offspring", SKY, "users"), unsafe_allow_html=True)
         m[1].markdown(stat(f"{avg_dev:.1f}%", "Avg deviation", AMBER, "trend_down"), unsafe_allow_html=True)
-        m[2].markdown(stat(f"{pval:.2f}", "χ² p-value", GREEN if pval >= .05 else ROSE, "target"), unsafe_allow_html=True)
+        m[2].markdown(stat(f"{pval:.2f}", "p-value", GREEN if pval >= .05 else ROSE, "target"), unsafe_allow_html=True)
         st.write("")
 
         c1, c2 = st.columns(2)
@@ -642,11 +738,22 @@ elif page == "exp6":
     clf = get_error_classifier()
     left, right = st.columns([1, 2], gap="large")
     with left:
-        with st.container(border=True):
+        with st.form("f_exp6"):
             shdr("SCENARIO")
             mode = st.selectbox("Cross", ["Tt × tt (test cross)", "Tt × Tt (monohybrid)", "AaBb × AaBb (dihybrid)"], 1)
-            student = st.text_input("Student ratio", "1:2:1")
-            st.caption("Try: 3:1 · 1:2:1 · 9:3:3:1 · 1:1")
+            student = st.text_input("Student ratio", "", placeholder="e.g. 1:2:1")
+            if st.form_submit_button("Diagnose", type="primary", use_container_width=True):
+                st.session_state.r6 = (mode, student)
+    r = st.session_state.get("r6")
+    if not r:
+        with right:
+            idle()
+        st.stop()
+    mode, student = r
+    if not student.strip():
+        with right:
+            verdict("warn", "pencil", "Type a ratio first")
+        st.stop()
 
     loci = 2 if "dihybrid" in mode else 1
     exp_p = "9:3:3:1" if loci == 2 else ("1:1" if "test" in mode else "3:1")
@@ -679,6 +786,7 @@ elif page == "exp6":
                                    marker_color=[GREEN if k == cat else "#c7d2fe" for k, _ in pr], marker_cornerradius=6,
                                    text=[f"{p:.0%}" for _, p in pr], textposition="outside"))
             fig.update_xaxes(range=[0, 1.15], tickformat=".0%")
+            fig.update_yaxes(automargin=True)
             show(style_fig(fig, 250, legend=False))
 
         fig = ratio_compare(student, exp_p)
