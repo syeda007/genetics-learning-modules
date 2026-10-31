@@ -38,7 +38,7 @@ class SettingsScreen(QWidget):
         header_h.addWidget(btn_back)
         
         title = QLabel("SYSTEM SETTINGS & HARDWARE DIAGNOSTICS", self)
-        title.setStyleSheet("font-size: 13px; font-weight: bold; color: #ffffff;")
+        title.setStyleSheet("font-size: 13px; font-weight: 800; color: #0f172a;")
         header_h.addWidget(title)
         header_h.addStretch()
         main_layout.addLayout(header_h)
@@ -57,7 +57,7 @@ class SettingsScreen(QWidget):
         d_layout = QVBoxLayout(disp_card)
         d_layout.setSpacing(4)
         d_title = QLabel("DISPLAY RESOLUTION & KIOSK GEOMETRY", disp_card)
-        d_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        d_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         d_layout.addWidget(d_title)
 
         d_layout.addWidget(QLabel("Target Display Resolution:", disp_card))
@@ -81,11 +81,11 @@ class SettingsScreen(QWidget):
         h_layout = QVBoxLayout(hw_card)
         h_layout.setSpacing(4)
         h_title = QLabel("HARDWARE SUBSYSTEM & OPERATING MODE", hw_card)
-        h_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        h_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         h_layout.addWidget(h_title)
 
         self.mode_status_lbl = QLabel(f"Active Mode: {self.adapter.hardware_mode.upper()}", hw_card)
-        self.mode_status_lbl.setStyleSheet("font-weight: bold; color: #2ec4b6; font-size: 10px;")
+        self.mode_status_lbl.setStyleSheet("font-weight: 700; color: #15803d; font-size: 10px;")
         h_layout.addWidget(self.mode_status_lbl)
 
         btn_reconnect = QPushButton("Re-probe Hardware Subsystem", hw_card)
@@ -99,7 +99,7 @@ class SettingsScreen(QWidget):
         l_layout = QVBoxLayout(led_card)
         l_layout.setSpacing(4)
         l_title = QLabel("LED OPTICAL FEEDBACK TEST BENCH", led_card)
-        l_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        l_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         l_layout.addWidget(l_title)
 
         led_grid = QHBoxLayout()
@@ -131,12 +131,12 @@ class SettingsScreen(QWidget):
         right_layout.setSpacing(4)
 
         conf_title = QLabel("HARDWARE PIN CONFIGURATION MAP (config.json)", right_frame)
-        conf_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        conf_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         right_layout.addWidget(conf_title)
 
         self.conf_text = QTextEdit(right_frame)
         self.conf_text.setReadOnly(True)
-        self.conf_text.setStyleSheet("background-color: #0b1325; border: 1px solid #1a2c4e; color: #e0e6ed; font-family: monospace; font-size: 9px;")
+        self.conf_text.setStyleSheet("background-color: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; font-family: monospace; font-size: 9px;")
         right_layout.addWidget(self.conf_text)
 
         splitter.addWidget(right_frame)

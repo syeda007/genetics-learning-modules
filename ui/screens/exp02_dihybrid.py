@@ -16,6 +16,8 @@ from genetics_engine.crosses import execute_cross
 from ml.deterministic_evaluator import evaluate_student_prediction
 from data.experiment_store import ExperimentRecord, ExperimentStore
 from ui.components.punnett_widget import PunnettSquareWidget
+from ui.components.dna_visualizer import DnaHelixWidget
+from ui.components.cross_diagram import CrossDiagramWidget
 from hardware.base import HardwareAdapter
 from hardware.led_controller import LedController
 from content.scientific_text import MENDELIAN_BACKGROUND
@@ -41,145 +43,146 @@ class DihybridExperimentScreen(QWidget):
 
     def _init_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(12, 8, 12, 8)
-        main_layout.setSpacing(8)
+        main_layout.setContentsMargins(10, 6, 10, 6)
+        main_layout.setSpacing(6)
 
-        # Header bar
+        # ── Header ──────────────────────────────────────────────
         header_h = QHBoxLayout()
-        btn_back = QPushButton("← MODULE 01 HUB", self)
+        btn_back = QPushButton("← HUB", self)
+        btn_back.setFixedWidth(80)
         btn_back.clicked.connect(lambda: self.navigate_to.emit("module01_hub"))
         header_h.addWidget(btn_back)
-        
-        title = QLabel("EXPERIMENT 02: DIHYBRID INHERITANCE (INDEPENDENT ASSORTMENT)", self)
-        title.setStyleSheet("font-size: 13px; font-weight: bold; color: #ffffff;")
+        title = QLabel("EXP 02 · Dihybrid Inheritance", self)
+        title.setStyleSheet("font-size: 14px; font-weight: 800; color: #0f172a;")
         header_h.addWidget(title)
+        badge = QLabel("Two Loci · Independent Assortment · 9:3:3:1", self)
+        badge.setStyleSheet(
+            "background:#ede9fe; color:#6d28d9; font-size:9px; font-weight:700;"
+            "border-radius:8px; padding:3px 8px;"
+        )
+        header_h.addWidget(badge)
         header_h.addStretch()
         main_layout.addLayout(header_h)
 
         splitter = QSplitter(Qt.Horizontal, self)
 
-        # LEFT PANEL
+        # ── LEFT: DNA helix (2 loci) + cross diagram ─────────────
         left_widget = QWidget()
         left_layout = QVBoxLayout(left_widget)
-        left_layout.setContentsMargins(4, 4, 4, 4)
-        left_layout.setSpacing(6)
+        left_layout.setContentsMargins(2, 2, 2, 2)
+        left_layout.setSpacing(4)
 
-        # Objectives Card
-        obj_frame = QFrame(left_widget)
-        obj_frame.setObjectName("lab-card")
-        obj_layout = QVBoxLayout(obj_frame)
-        obj_layout.setSpacing(2)
-        obj_title = QLabel("EXPERIMENTAL OBJECTIVE & CONDITIONS FOR 9:3:3:1", obj_frame)
-        obj_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
-        obj_desc = QLabel(MENDELIAN_BACKGROUND["exp02_objective"], obj_frame)
-        obj_desc.setWordWrap(True)
-        obj_desc.setStyleSheet("color: #a0b2c6; font-size: 9px;")
-        obj_layout.addWidget(obj_title)
-        obj_layout.addWidget(obj_desc)
-        left_layout.addWidget(obj_frame)
+        self.dna_widget = DnaHelixWidget(left_widget)
+        self.dna_widget.setFixedHeight(200)
+        self.dna_widget.set_loci_info("Locus A (Seed Shape)", "ACTIVE",
+                                       "Locus B (Seed Color)", "UNLINKED")
+        left_layout.addWidget(self.dna_widget)
 
-        # Parents Selection
-        parents_frame = QFrame(left_widget)
+        self.cross_diagram = CrossDiagramWidget(left_widget)
+        self.cross_diagram.setFixedHeight(185)
+        left_layout.addWidget(self.cross_diagram)
+        left_layout.addStretch()
+        splitter.addWidget(left_widget)
+
+        # ── MIDDLE: Controls ──────────────────────────────────────
+        mid_widget = QWidget()
+        mid_layout = QVBoxLayout(mid_widget)
+        mid_layout.setContentsMargins(4, 4, 4, 4)
+        mid_layout.setSpacing(6)
+
+        parents_frame = QFrame(mid_widget)
         parents_frame.setObjectName("lab-card")
         p_layout = QVBoxLayout(parents_frame)
-        p_layout.setSpacing(4)
-        p_title = QLabel("TWO-LOCUS PARENTAL CONFIGURATION", parents_frame)
-        p_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
-        p_layout.addWidget(p_title)
+        p_layout.setSpacing(6)
+        p_layout.addWidget(self._make_label("⚗ PARENTAL GENOTYPES", parents_frame))
 
-        p1_h = QHBoxLayout()
-        p1_h.addWidget(QLabel("Parent 1 (♀):", parents_frame))
-        self.p1_combo = QComboBox(parents_frame)
-        self.p1_combo.addItems(DIHYBRID_CHOICES)
-        self.p1_combo.setCurrentIndex(0) # AaBb
-        p1_h.addWidget(self.p1_combo)
-        p_layout.addLayout(p1_h)
+        for lbl_txt, attr in [("♀ Parent 1:", "p1_combo"), ("♂ Parent 2:", "p2_combo")]:
+            row = QHBoxLayout()
+            lbl = QLabel(lbl_txt, parents_frame)
+            lbl.setFixedWidth(72)
+            combo = QComboBox(parents_frame)
+            combo.addItems(DIHYBRID_CHOICES)
+            row.addWidget(lbl)
+            row.addWidget(combo)
+            p_layout.addLayout(row)
+            setattr(self, attr, combo)
+        mid_layout.addWidget(parents_frame)
 
-        p2_h = QHBoxLayout()
-        p2_h.addWidget(QLabel("Parent 2 (♂):", parents_frame))
-        self.p2_combo = QComboBox(parents_frame)
-        self.p2_combo.addItems(DIHYBRID_CHOICES)
-        self.p2_combo.setCurrentIndex(0) # AaBb
-        p2_h.addWidget(self.p2_combo)
-        p_layout.addLayout(p2_h)
-        left_layout.addWidget(parents_frame)
-
-        # Student Prediction
-        hypo_frame = QFrame(left_widget)
+        hypo_frame = QFrame(mid_widget)
         hypo_frame.setObjectName("lab-card")
         hypo_layout = QVBoxLayout(hypo_frame)
         hypo_layout.setSpacing(4)
-        hypo_title = QLabel("HYPOTHESIS: EXPECTED PHENOTYPIC RATIO", hypo_frame)
-        hypo_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
-        hypo_layout.addWidget(hypo_title)
-        
-        hypo_input_h = QHBoxLayout()
-        hypo_input_h.addWidget(QLabel("Predicted Ratio:", hypo_frame))
+        hypo_layout.addWidget(self._make_label("🎯 PREDICTED PHENOTYPIC RATIO", hypo_frame))
+        pred_row = QHBoxLayout()
+        pred_row.addWidget(QLabel("Ratio:", hypo_frame))
         self.pred_input = QLineEdit(hypo_frame)
-        self.pred_input.setPlaceholderText("e.g. 9:3:3:1 or 1:1:1:1")
+        self.pred_input.setPlaceholderText("e.g. 9:3:3:1")
         self.pred_input.setText("9:3:3:1")
-        hypo_input_h.addWidget(self.pred_input)
-        hypo_layout.addLayout(hypo_input_h)
-        left_layout.addWidget(hypo_frame)
+        pred_row.addWidget(self.pred_input)
+        hypo_layout.addLayout(pred_row)
+        mid_layout.addWidget(hypo_frame)
 
-        # Buttons
-        btn_cross = QPushButton("⚡ COMPUTE 4×4 CROSS & DERIVATION", left_widget)
+        btn_cross = QPushButton("⚡ RUN 4×4 CROSS", mid_widget)
         btn_cross.setObjectName("btn-primary")
         btn_cross.clicked.connect(self._run_cross)
-        left_layout.addWidget(btn_cross)
+        mid_layout.addWidget(btn_cross)
 
-        self.btn_save = QPushButton("💾 SAVE EXPERIMENT RECORD", left_widget)
+        self.btn_save = QPushButton("💾 SAVE RECORD", mid_widget)
         self.btn_save.setEnabled(False)
         self.btn_save.clicked.connect(self._save_record)
-        left_layout.addWidget(self.btn_save)
+        mid_layout.addWidget(self.btn_save)
 
-        self.save_status_label = QLabel("", left_widget)
-        self.save_status_label.setStyleSheet("color: #2ec4b6; font-size: 9px; font-weight: bold;")
-        left_layout.addWidget(self.save_status_label)
-        left_layout.addStretch()
+        self.save_status_label = QLabel("", mid_widget)
+        self.save_status_label.setStyleSheet("color: #10b981; font-size: 9px; font-weight: bold;")
+        mid_layout.addWidget(self.save_status_label)
 
-        splitter.addWidget(left_widget)
+        self.results_card = QFrame(mid_widget)
+        self.results_card.setObjectName("lab-card")
+        res_layout = QVBoxLayout(self.results_card)
+        res_layout.addWidget(self._make_label("📊 CALCULATED RATIOS", self.results_card))
+        self.res_text = QLabel("Run cross to see ratios.", self.results_card)
+        self.res_text.setWordWrap(True)
+        self.res_text.setStyleSheet("color: #334155; font-size: 10px; font-family: 'Consolas', monospace;")
+        res_layout.addWidget(self.res_text)
+        mid_layout.addWidget(self.results_card)
+        mid_layout.addStretch()
+        splitter.addWidget(mid_widget)
 
-        # RIGHT PANEL: Punnett Square & Explanation
+        # ── RIGHT: Punnett + Feedback ─────────────────────────────
         right_scroll = QScrollArea(self)
         right_scroll.setWidgetResizable(True)
         right_content = QWidget()
         right_layout = QVBoxLayout(right_content)
-        right_layout.setContentsMargins(6, 4, 6, 4)
-        right_layout.setSpacing(8)
+        right_layout.setContentsMargins(4, 4, 4, 4)
+        right_layout.setSpacing(6)
 
+        right_layout.addWidget(self._make_label("PUNNETT SQUARE (4×4)", right_content))
         self.punnett_widget = PunnettSquareWidget(right_content)
         right_layout.addWidget(self.punnett_widget)
 
-        self.results_card = QFrame(right_content)
-        self.results_card.setObjectName("lab-card")
-        self.res_layout = QVBoxLayout(self.results_card)
-        self.res_title = QLabel("THEORETICAL DIHYBRID RATIOS", self.results_card)
-        self.res_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
-        self.res_text = QLabel("Execute cross to construct 4×4 matrix and determine gamete probabilities.", self.results_card)
-        self.res_text.setWordWrap(True)
-        self.res_layout.addWidget(self.res_title)
-        self.res_layout.addWidget(self.res_text)
-        right_layout.addWidget(self.results_card)
-
         self.feedback_card = QFrame(right_content)
         self.feedback_card.setObjectName("lab-card")
-        self.fb_layout = QVBoxLayout(self.feedback_card)
-        self.fb_title = QLabel("INDEPENDENT ASSORTMENT DERIVATION & LINKAGE CAVEAT", self.feedback_card)
-        self.fb_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        fb_layout = QVBoxLayout(self.feedback_card)
+        fb_layout.addWidget(self._make_label("🔬 EVALUATION", self.feedback_card))
         self.fb_text = QTextEdit(self.feedback_card)
         self.fb_text.setReadOnly(True)
-        self.fb_text.setStyleSheet("background-color: #0b1325; border: 1px solid #1a2c4e; color: #e0e6ed; font-size: 10px;")
-        self.fb_text.setFixedHeight(115)
-        self.fb_layout.addWidget(self.fb_title)
-        self.fb_layout.addWidget(self.fb_text)
+        self.fb_text.setStyleSheet(
+            "background:#f8fafc; border:1px solid #e2e8f0; color:#0f172a; font-size:10px;"
+        )
+        self.fb_text.setFixedHeight(95)
+        fb_layout.addWidget(self.fb_text)
         right_layout.addWidget(self.feedback_card)
+        right_layout.addStretch()
 
         right_scroll.setWidget(right_content)
         splitter.addWidget(right_scroll)
-        splitter.setSizes([340, 460])
-
+        splitter.setSizes([230, 280, 290])
         main_layout.addWidget(splitter)
+
+    def _make_label(self, text: str, parent) -> QLabel:
+        lbl = QLabel(text, parent)
+        lbl.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
+        return lbl
 
     def _run_cross(self):
         p1_str = self.p1_combo.currentText()
@@ -191,20 +194,33 @@ class DihybridExperimentScreen(QWidget):
         self.last_cross_result = execute_cross(p1, p2, DIHYBRID_INDEPENDENT_ASSORTMENT, DIHYBRID_ALLELE_MAP)
         self.punnett_widget.display_punnett_square(self.last_cross_result.punnett_square)
 
+        # Update cross diagram
+        self.cross_diagram.set_cross(
+            p1_str, p2_str,
+            list("AB"), list("AB"),
+            ["A_B_", "A_bb", "aaB_", "aabb"],
+            {"A_B_": "9", "A_bb": "3", "aaB_": "3", "aabb": "1"}
+        )
+        self.dna_widget.set_loci_info(
+            f"Locus A ({p1_str[:2]})", "ACTIVE",
+            f"Locus B ({p1_str[2:]})", "UNLINKED"
+        )
+
+        pf = self.last_cross_result.phenotype_frequencies
+        pheno_str = "  ".join(f"{k} {v*100:.0f}%" for k, v in pf.items())
         self.res_text.setText(
             f"Cross: {p1_str} × {p2_str}\n"
-            f"Phenotypic Ratio: {self.last_cross_result.phenotype_ratios}\n"
-            f"Expected Classes: {', '.join(f'{k}: {v*100:.1f}%' for k, v in self.last_cross_result.phenotype_frequencies.items())}"
+            f"Pheno: {self.last_cross_result.phenotype_ratios}\n"
+            f"{pheno_str}"
         )
 
         pred_text = self.pred_input.text().strip()
         eval_report = evaluate_student_prediction(self.last_cross_result, pred_text, target_attribute="phenotype")
         self.led_controller.trigger_prediction_result(eval_report.is_correct)
 
+        verdict = "✓ CORRECT" if eval_report.is_correct else "✗ INCORRECT"
         self.fb_text.setText(
-            f"{eval_report.scientific_feedback}\n\n"
-            f"--- MATHEMATICAL DERIVATION ---\n{eval_report.derivation_proof}\n\n"
-            f"--- CHROMOSOMAL MECHANISM & LINKAGE WARNING ---\n{MENDELIAN_BACKGROUND['exp02_scientific_basis']}"
+            f"{verdict}\n{eval_report.scientific_feedback}\n\nDerivation: {eval_report.derivation_proof}"
         )
         self.btn_save.setEnabled(True)
         self.save_status_label.setText("")
@@ -243,4 +259,4 @@ class DihybridExperimentScreen(QWidget):
         )
         self.exp_store.save_experiment(rec)
         self.led_controller.trigger_experiment_complete()
-        self.save_status_label.setText(f"✓ Experiment record logged: {rec.experiment_id}")
+        self.save_status_label.setText(f"✓ Saved: {rec.experiment_id}")

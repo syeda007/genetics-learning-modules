@@ -2,3 +2,10 @@ experiment_id,timestamp,experiment_type,parent1,parent2,sample_size,chi2_stat,p_
 EXP01-20261018-232524,2026-10-18T23:25:24.650130,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A
 EXP01-20261018-232722,2026-10-18T23:27:22.972993,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A
 EXP01-20261018-233525,2026-10-18T23:35:25.436601,Monohybrid Inheritance (Single Locus),TT,tt,0,N/A,N/A,N/A
+EXP01-20261031-132635,2026-10-31T13:26:35.233876,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A
+EXP01-20261031-134203,2026-10-31T13:42:03.597452,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A
+EXP01-20261031-134247,2026-10-31T13:42:47.668167,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A
+EXP01-20261031-134551,2026-10-31T13:45:51.045979,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A
+EXP01-20261031-135139,2026-10-31T13:51:39.090288,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A
+EXP01-20261031-140622,2026-10-31T14:06:22.505803,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A
+EXP01-20261031-141653,2026-10-31T14:16:53.580170,Monohybrid Inheritance (Single Locus),Tt,Tt,0,N/A,N/A,N/A

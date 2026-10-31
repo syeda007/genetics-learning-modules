@@ -32,7 +32,7 @@ class RecordsBrowserScreen(QWidget):
         header_h.addWidget(btn_back)
         
         title = QLabel("EXPERIMENTAL RECORDS & SCIENTIFIC REPRODUCIBILITY ARCHIVE", self)
-        title.setStyleSheet("font-size: 13px; font-weight: bold; color: #ffffff;")
+        title.setStyleSheet("font-size: 13px; font-weight: 800; color: #0f172a;")
         header_h.addWidget(title)
         header_h.addStretch()
 
@@ -63,12 +63,12 @@ class RecordsBrowserScreen(QWidget):
         right_layout.setSpacing(4)
         
         insp_title = QLabel("RECORD INSPECTOR & REPRODUCIBILITY DATA (JSON)", right_frame)
-        insp_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        insp_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         right_layout.addWidget(insp_title)
 
         self.inspector_text = QTextEdit(right_frame)
         self.inspector_text.setReadOnly(True)
-        self.inspector_text.setStyleSheet("background-color: #0b1325; border: 1px solid #1a2c4e; color: #e0e6ed; font-family: monospace; font-size: 9px;")
+        self.inspector_text.setStyleSheet("background-color: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; font-family: monospace; font-size: 9px;")
         right_layout.addWidget(self.inspector_text)
         
         splitter.addWidget(right_frame)

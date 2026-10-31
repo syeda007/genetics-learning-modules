@@ -42,7 +42,7 @@ class StatisticalValidationScreen(QWidget):
         header_h.addWidget(btn_back)
         
         title = QLabel("EXPERIMENT 04: STATISTICAL VALIDATION (PEARSON χ² GOODNESS-OF-FIT)", self)
-        title.setStyleSheet("font-size: 13px; font-weight: bold; color: #ffffff;")
+        title.setStyleSheet("font-size: 13px; font-weight: 800; color: #0f172a;")
         header_h.addWidget(title)
         header_h.addStretch()
         main_layout.addLayout(header_h)
@@ -61,7 +61,7 @@ class StatisticalValidationScreen(QWidget):
         p_layout = QVBoxLayout(preset_frame)
         p_layout.setSpacing(4)
         p_title = QLabel("HISTORICAL & EXPERIMENTAL BENCHMARKS", preset_frame)
-        p_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        p_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         p_layout.addWidget(p_title)
 
         btn_mendel_mono = QPushButton("Mendel F2 Monohybrid (556 Tall, 184 Dwarf)", preset_frame)
@@ -149,10 +149,10 @@ class StatisticalValidationScreen(QWidget):
         self.summary_card.setObjectName("lab-card")
         self.s_layout = QVBoxLayout(self.summary_card)
         self.s_title = QLabel("STATISTICAL METRICS & ACADEMIC INTERPRETATION", self.summary_card)
-        self.s_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        self.s_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         self.s_text = QTextEdit(self.summary_card)
         self.s_text.setReadOnly(True)
-        self.s_text.setStyleSheet("background-color: #0b1325; border: 1px solid #1a2c4e; color: #e0e6ed; font-size: 10px;")
+        self.s_text.setStyleSheet("background-color: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; font-size: 10px;")
         self.s_text.setFixedHeight(130)
         self.s_layout.addWidget(self.s_title)
         self.s_layout.addWidget(self.s_text)
@@ -231,15 +231,13 @@ class StatisticalValidationScreen(QWidget):
             self.table.setItem(r, 5, QTableWidgetItem(f"{item.chi_square_contribution:.4f}"))
 
         # Update Summary Text
-        warning_str = f"\n{self.last_chi2_result.warning_message}\n" if self.last_chi2_result.warning_message else ""
+        warning_str = f"\n{self.last_chi2_result.warning_message}" if self.last_chi2_result.warning_message else ""
         self.s_text.setText(
-            f"CHI-SQUARE STATISTIC (χ²): {self.last_chi2_result.chi_square_statistic:.4f}\n"
-            f"DEGREES OF FREEDOM (df): {self.last_chi2_result.degrees_of_freedom} (k - 1, fully prespecified)\n"
-            f"p-VALUE: {self.last_chi2_result.p_value:.5e} | α: {self.last_chi2_result.alpha}\n"
-            f"STATISTICAL DECISION: {self.last_chi2_result.conclusion}\n"
+            f"χ² = {self.last_chi2_result.chi_square_statistic:.4f}  df = {self.last_chi2_result.degrees_of_freedom}  "
+            f"p = {self.last_chi2_result.p_value:.4e}\n"
+            f"Decision: {self.last_chi2_result.conclusion}"
             f"{warning_str}\n"
-            f"INTERPRETATION:\n{self.last_chi2_result.interpretation}\n\n"
-            f"--- BIOSTATISTICAL THEORY ---\n{MENDELIAN_BACKGROUND['exp04_scientific_basis']}"
+            f"{self.last_chi2_result.interpretation}"
         )
 
         self.led_controller.trigger_prediction_result(not self.last_chi2_result.is_significant)

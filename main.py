@@ -130,6 +130,7 @@ class GeneticsMainWindow(QMainWindow):
         # Keyboard Navigation for Non-Touchscreen Kiosk Operation
         QShortcut(QKeySequence("F1"), self, lambda: self.navigate_to_screen("dashboard"))
         QShortcut(QKeySequence("F2"), self, lambda: self.navigate_to_screen("module01_hub"))
+        QShortcut(QKeySequence("F3"), self, lambda: self.navigate_to_screen("exp01_monohybrid"))
         QShortcut(QKeySequence("F5"), self, lambda: self.navigate_to_screen("records"))
         QShortcut(QKeySequence("F12"), self, lambda: self.navigate_to_screen("settings"))
         QShortcut(QKeySequence("Escape"), self, self.close)

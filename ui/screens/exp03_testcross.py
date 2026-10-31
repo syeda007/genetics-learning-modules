@@ -41,13 +41,19 @@ class TestCrossExperimentScreen(QWidget):
 
         # Header bar
         header_h = QHBoxLayout()
-        btn_back = QPushButton("← MODULE 01 HUB", self)
+        btn_back = QPushButton("← HUB", self)
+        btn_back.setFixedWidth(80)
         btn_back.clicked.connect(lambda: self.navigate_to.emit("module01_hub"))
         header_h.addWidget(btn_back)
-        
-        title = QLabel("EXPERIMENT 03: TEST CROSS & ZYGOSITY DISCRIMINATION", self)
-        title.setStyleSheet("font-size: 13px; font-weight: bold; color: #ffffff;")
+        title = QLabel("EXP 03 · Test Cross & Zygosity", self)
+        title.setStyleSheet("font-size: 14px; font-weight: 800; color: #0f172a;")
         header_h.addWidget(title)
+        badge = QLabel("Discriminates TT vs Tt · aa Tester", self)
+        badge.setStyleSheet(
+            "background:#dcfce7; color:#15803d; font-size:9px; font-weight:700;"
+            "border-radius:8px; padding:3px 8px;"
+        )
+        header_h.addWidget(badge)
         header_h.addStretch()
         main_layout.addLayout(header_h)
 
@@ -59,19 +65,6 @@ class TestCrossExperimentScreen(QWidget):
         left_layout.setContentsMargins(4, 4, 4, 4)
         left_layout.setSpacing(6)
 
-        # Objective
-        obj_frame = QFrame(left_widget)
-        obj_frame.setObjectName("lab-card")
-        obj_layout = QVBoxLayout(obj_frame)
-        obj_layout.setSpacing(2)
-        obj_title = QLabel("TEST CROSS LOGIC & ZYGOSITY TESTING", obj_frame)
-        obj_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
-        obj_desc = QLabel(MENDELIAN_BACKGROUND["exp03_objective"], obj_frame)
-        obj_desc.setWordWrap(True)
-        obj_desc.setStyleSheet("color: #a0b2c6; font-size: 9px;")
-        obj_layout.addWidget(obj_title)
-        obj_layout.addWidget(obj_desc)
-        left_layout.addWidget(obj_frame)
 
         # Subject Setup
         subj_frame = QFrame(left_widget)
@@ -79,7 +72,7 @@ class TestCrossExperimentScreen(QWidget):
         s_layout = QVBoxLayout(subj_frame)
         s_layout.setSpacing(4)
         s_title = QLabel("TEST SUBJECT SELECTION", subj_frame)
-        s_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        s_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         s_layout.addWidget(s_title)
 
         s_h = QHBoxLayout()
@@ -98,7 +91,7 @@ class TestCrossExperimentScreen(QWidget):
         h_layout = QVBoxLayout(hypo_frame)
         h_layout.setSpacing(4)
         h_title = QLabel("FORMULATE STUDENT HYPOTHESIS", hypo_frame)
-        h_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        h_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         h_layout.addWidget(h_title)
 
         self.hypo_combo = QComboBox(hypo_frame)
@@ -150,10 +143,10 @@ class TestCrossExperimentScreen(QWidget):
         self.analysis_card.setObjectName("lab-card")
         self.a_layout = QVBoxLayout(self.analysis_card)
         self.a_title = QLabel("STATISTICAL INFERENCE & LIKELIHOOD ANALYSIS", self.analysis_card)
-        self.a_title.setStyleSheet("color: #00b4d8; font-weight: bold; font-size: 10px;")
+        self.a_title.setStyleSheet("color: #2563eb; font-weight: 700; font-size: 10px;")
         self.a_text = QTextEdit(self.analysis_card)
         self.a_text.setReadOnly(True)
-        self.a_text.setStyleSheet("background-color: #0b1325; border: 1px solid #1a2c4e; color: #e0e6ed; font-size: 10px;")
+        self.a_text.setStyleSheet("background-color: #ffffff; border: 1.5px solid #cbd5e1; color: #0f172a; font-size: 10px;")
         self.a_text.setFixedHeight(150)
         self.a_layout.addWidget(self.a_title)
         self.a_layout.addWidget(self.a_text)
@@ -229,10 +222,7 @@ class TestCrossExperimentScreen(QWidget):
             )
 
         self.led_controller.trigger_prediction_result(is_consistent)
-        self.a_text.setText(
-            f"{verdict}\n\n"
-            f"--- TEST CROSS METHODOLOGY ---\n{MENDELIAN_BACKGROUND['exp03_scientific_basis']}"
-        )
+        self.a_text.setText(verdict)
         self.btn_save.setEnabled(True)
 
     def _save_record(self):

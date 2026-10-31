@@ -1,20 +1,122 @@
 """
-UI Screen: Genetics Laboratory Dashboard (Home Screen)
-Academic Genetics Research System (Postgraduate M.Sc. Genetics)
+UI Screen: Central Dashboard — Visual-First Lab Hub v3.0
+Bold, engaging, visual-forward design with vibrant indigo/emerald palette.
 """
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QFrame, QGridLayout, QScrollArea
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame,
+    QGridLayout, QScrollArea, QSizePolicy
 )
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QFont, QColor, QPainter, QLinearGradient, QPen, QBrush
+
+
+class GradientBannerWidget(QWidget):
+    """Full-width hero banner with indigo gradient and big title."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedHeight(110)
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        grad = QLinearGradient(0, 0, self.width(), self.height())
+        grad.setColorAt(0.0, QColor("#4f46e5"))
+        grad.setColorAt(0.5, QColor("#6366f1"))
+        grad.setColorAt(1.0, QColor("#10b981"))
+        p.fillRect(self.rect(), grad)
+
+        # DNA strand dots accent
+        p.setPen(Qt.NoPen)
+        p.setBrush(QBrush(QColor(255, 255, 255, 18)))
+        for i in range(0, self.width(), 60):
+            p.drawEllipse(i, 10, 40, 40)
+            p.drawEllipse(i + 20, 55, 30, 30)
+
+        p.end()
+
+
+class StatBadge(QFrame):
+    """A vivid stat metric badge card."""
+    def __init__(self, icon, value, label, bg_color, text_color, parent=None):
+        super().__init__(parent)
+        self.setObjectName("lab-card")
+        self.setStyleSheet(
+            f"background-color: {bg_color}; border: none; border-radius: 14px; padding: 10px;"
+        )
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(14, 10, 14, 10)
+        layout.setSpacing(2)
+
+        icon_lbl = QLabel(icon, self)
+        icon_lbl.setStyleSheet("font-size: 22px; background: transparent;")
+        layout.addWidget(icon_lbl)
+
+        val_lbl = QLabel(value, self)
+        val_lbl.setStyleSheet(
+            f"font-size: 18px; font-weight: 900; color: {text_color}; background: transparent;"
+        )
+        layout.addWidget(val_lbl)
+
+        lbl = QLabel(label, self)
+        lbl.setWordWrap(True)
+        lbl.setStyleSheet(
+            f"font-size: 9px; font-weight: 700; color: {text_color}; "
+            f"opacity: 0.8; background: transparent; letter-spacing: 0.5px;"
+        )
+        layout.addWidget(lbl)
+
+
+class ExperimentCard(QFrame):
+    """Visual experiment launch card with color-coded top accent."""
+    def __init__(self, screen_id, num, title, icon, desc, accent, parent=None):
+        super().__init__(parent)
+        self.setObjectName("lab-card")
+        self.setStyleSheet(
+            f"background-color: #ffffff; border: 1.5px solid #e0e7ff;"
+            f"border-top: 4px solid {accent}; border-radius: 14px; padding: 0;"
+        )
+        self.setCursor(Qt.PointingHandCursor)
+        self.screen_id = screen_id
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(14, 12, 14, 12)
+        layout.setSpacing(6)
+
+        # Top: number badge + icon
+        top_row = QHBoxLayout()
+        num_badge = QLabel(num, self)
+        num_badge.setStyleSheet(
+            f"background-color: {accent}; color: #ffffff; border-radius: 8px;"
+            f"padding: 3px 10px; font-size: 9px; font-weight: 900; letter-spacing: 1px;"
+        )
+        num_badge.setFixedHeight(20)
+        top_row.addWidget(num_badge)
+        top_row.addStretch()
+        icon_lbl = QLabel(icon, self)
+        icon_lbl.setStyleSheet("font-size: 26px; background: transparent;")
+        top_row.addWidget(icon_lbl)
+        layout.addLayout(top_row)
+
+        # Title
+        title_lbl = QLabel(title, self)
+        title_lbl.setStyleSheet(
+            "font-size: 13px; font-weight: 800; color: #1e1b4b; background: transparent;"
+        )
+        title_lbl.setWordWrap(True)
+        layout.addWidget(title_lbl)
+
+        # Desc — very short
+        desc_lbl = QLabel(desc, self)
+        desc_lbl.setWordWrap(True)
+        desc_lbl.setStyleSheet(
+            "color: #6b7280; font-size: 10px; font-weight: 500; background: transparent;"
+        )
+        layout.addWidget(desc_lbl)
+        layout.addStretch()
 
 
 class DashboardScreen(QWidget):
-    """
-    Main Research Workstation Dashboard.
-    Provides academic navigation to Module 01, Planned Modules, Records, and Settings.
-    """
-    navigate_to = pyqtSignal(str)  # Target screen identifier
+    navigate_to = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -22,134 +124,192 @@ class DashboardScreen(QWidget):
 
     def _init_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(16, 12, 16, 12)
-        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
-        # Header Section
-        header_frame = QFrame(self)
-        header_frame.setObjectName("lab-panel")
-        header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(12, 8, 12, 8)
-        header_layout.setSpacing(2)
+        # ── Hero Banner ───────────────────────────────────────────────────────
+        banner = GradientBannerWidget(self)
+        banner_content = QWidget(banner)
+        banner_content.setGeometry(0, 0, 2000, 110)
+        b_layout = QVBoxLayout(banner_content)
+        b_layout.setContentsMargins(20, 12, 20, 12)
+        b_layout.setSpacing(3)
 
-        title = QLabel("GENETICS EXPERIMENTATION SYSTEM", header_frame)
-        title.setObjectName("heading-primary")
-        title.setStyleSheet("font-size: 16px; font-weight: bold; color: #ffffff; letter-spacing: 1px;")
-        
-        subtitle = QLabel("Interactive Classical Genetics and Statistical Inheritance Analysis | M.Sc. Research Instrument", header_frame)
-        subtitle.setStyleSheet("color: #00b4d8; font-size: 11px; font-weight: 500;")
+        title_lbl = QLabel("🧬 GENETICS EXPERIMENTATION SYSTEM", banner_content)
+        title_lbl.setStyleSheet(
+            "font-size: 22px; font-weight: 900; color: #ffffff; letter-spacing: 1px;"
+            "background: transparent;"
+        )
+        b_layout.addWidget(title_lbl)
 
-        header_layout.addWidget(title)
-        header_layout.addWidget(subtitle)
-        main_layout.addWidget(header_frame)
+        sub_lbl = QLabel(
+            "Interactive Mendelian Genetics · Biostatistics · Offline AI Evaluation  ·  M.Sc. Research Workstation",
+            banner_content
+        )
+        sub_lbl.setStyleSheet(
+            "font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.80);"
+            "background: transparent;"
+        )
+        b_layout.addWidget(sub_lbl)
 
-        # System Telemetry Bar
-        telemetry_frame = QFrame(self)
-        telemetry_frame.setStyleSheet("background-color: #0c1527; border: 1px solid #1a2c4e; border-radius: 4px; padding: 4px;")
-        telemetry_layout = QHBoxLayout(telemetry_frame)
-        telemetry_layout.setContentsMargins(8, 2, 8, 2)
-        
-        telemetry_layout.addWidget(QLabel("● SYSTEM: ONLINE (100% OFFLINE CAPABLE)", self))
-        telemetry_layout.addWidget(QLabel("● TARGET: M.Sc. GENETICS", self))
-        telemetry_layout.addWidget(QLabel("● HARDWARE: GPIO-READY / SIMULATION", self))
-        telemetry_layout.addWidget(QLabel("● VER: 1.0.0-ACADEMIC", self))
-        telemetry_layout.addStretch()
-        main_layout.addWidget(telemetry_frame)
+        status_row = QHBoxLayout()
+        for dot, txt, col in [
+            ("●", "SYSTEM ONLINE", "#86efac"),
+            ("●", "MODULE 01 ACTIVE", "#67e8f9"),
+            ("●", "24/24 TESTS PASSED", "#fde68a"),
+        ]:
+            lbl = QLabel(f"{dot}  {txt}", banner_content)
+            lbl.setStyleSheet(
+                f"font-size: 9px; font-weight: 800; color: {col}; "
+                f"background: transparent; letter-spacing: 0.8px;"
+            )
+            status_row.addWidget(lbl)
+            status_row.addSpacing(18)
+        status_row.addStretch()
+        b_layout.addLayout(status_row)
 
-        # Scroll area for modules
+        main_layout.addWidget(banner)
+
+        # ── Inner scroll content ──────────────────────────────────────────────
         scroll = QScrollArea(self)
         scroll.setWidgetResizable(True)
-        scroll_content = QWidget()
-        grid = QGridLayout(scroll_content)
-        grid.setSpacing(10)
+        scroll_widget = QWidget()
+        scroll_widget.setStyleSheet("background-color: #f0f4ff;")
+        inner = QVBoxLayout(scroll_widget)
+        inner.setContentsMargins(18, 16, 18, 16)
+        inner.setSpacing(16)
 
-        # MODULE 01: Fully Functional Primary Module
-        mod1_card = QFrame(scroll_content)
-        mod1_card.setObjectName("lab-card")
-        mod1_card.setStyleSheet("background-color: #122244; border: 2px solid #00b4d8; border-radius: 6px; padding: 10px;")
-        mod1_layout = QVBoxLayout(mod1_card)
-        mod1_layout.setSpacing(6)
+        # ── Stats Row ─────────────────────────────────────────────────────────
+        stats_row = QHBoxLayout()
+        stats_row.setSpacing(12)
+        stats = [
+            ("🔬", "6", "ACTIVE EXPERIMENTS", "#eef2ff", "#4f46e5"),
+            ("🧪", "100%", "DETERMINISTIC ENGINE", "#f0fdf4", "#059669"),
+            ("🤖", "Offline ML", "DECISION TREE AI", "#fdf4ff", "#7c3aed"),
+            ("📊", "χ²", "BIOSTATISTICAL TESTS", "#fff7ed", "#c2410c"),
+        ]
+        for icon, val, lbl, bg, col in stats:
+            badge = StatBadge(icon, val, lbl, bg, col, scroll_widget)
+            badge.setFixedHeight(100)
+            stats_row.addWidget(badge)
+        inner.addLayout(stats_row)
 
-        m1_top = QHBoxLayout()
-        m1_badge = QLabel("ACTIVE RESEARCH MODULE", mod1_card)
-        m1_badge.setStyleSheet("background-color: #1b4d3e; color: #2ec4b6; border: 1px solid #2ec4b6; border-radius: 3px; padding: 2px 6px; font-size: 9px; font-weight: bold;")
-        m1_top.addWidget(QLabel("MODULE 01", mod1_card))
-        m1_top.addStretch()
-        m1_top.addWidget(m1_badge)
-        mod1_layout.addLayout(m1_top)
+        # ── Section: Module 01 ────────────────────────────────────────────────
+        mod_header = QHBoxLayout()
+        sec_lbl = QLabel("MODULE 01  ·  Mendelian Inheritance & Statistical Analysis", scroll_widget)
+        sec_lbl.setStyleSheet(
+            "font-size: 13px; font-weight: 900; color: #1e1b4b; letter-spacing: 0.5px;"
+        )
+        mod_header.addWidget(sec_lbl)
+        mod_header.addStretch()
 
-        m1_title = QLabel("Mendelian Inheritance & Statistical Analysis", mod1_card)
-        m1_title.setStyleSheet("font-size: 13px; font-weight: bold; color: #ffffff;")
-        mod1_layout.addWidget(m1_title)
+        active_badge = QLabel("● ACTIVE MODULE", scroll_widget)
+        active_badge.setStyleSheet(
+            "background-color: #dcfce7; color: #166534; border-radius: 8px;"
+            "padding: 4px 12px; font-size: 9px; font-weight: 800; letter-spacing: 0.5px;"
+        )
+        mod_header.addWidget(active_badge)
+        inner.addLayout(mod_header)
 
-        m1_desc = QLabel("Complete 6-experiment suite: Monohybrid, Dihybrid, Test Cross, Chi-Square Goodness-of-Fit, Offspring Population Simulation, and Offline AI Prediction Evaluation.", mod1_card)
-        m1_desc.setWordWrap(True)
-        m1_desc.setStyleSheet("color: #a0b2c6; font-size: 10px;")
-        mod1_layout.addWidget(m1_desc)
-
-        btn_launch_m1 = QPushButton("ENTER MODULE 01 EXPERIMENTS →", mod1_card)
-        btn_launch_m1.setObjectName("btn-primary")
-        btn_launch_m1.clicked.connect(lambda: self.navigate_to.emit("module01_hub"))
-        mod1_layout.addWidget(btn_launch_m1)
-        grid.addWidget(mod1_card, 0, 0, 1, 2)
-
-        # PLANNED MODULES 2 to 6
-        planned_modules = [
-            ("MODULE 02", "Extensions of Mendelian Genetics", "Incomplete dominance, codominance, multiple alleles, lethal genes, and inter-locus epistasis."),
-            ("MODULE 03", "Linkage and Genetic Recombination", "Synteny mapping, 2-point and 3-point test crosses, chiasma interference, and centimorgan calculation."),
-            ("MODULE 04", "Population Genetics", "Hardy-Weinberg equilibrium, genetic drift, bottleneck simulations, and selection coefficients."),
-            ("MODULE 05", "Quantitative Genetics", "Polygenic inheritance, broad-sense and narrow-sense heritability, additive genetic variance."),
-            ("MODULE 06", "Molecular Genetics", "Central dogma mechanics, transcription, translation kinetics, and point mutation consequences.")
+        # ── Experiment Cards Grid ─────────────────────────────────────────────
+        experiments = [
+            ("exp01_monohybrid", "EXP 01", "Monohybrid Inheritance", "🌱",
+             "Allele segregation · Single locus · 3:1 phenotypic ratio", "#4f46e5"),
+            ("exp02_dihybrid", "EXP 02", "Dihybrid Inheritance", "🌿",
+             "Two loci · Independent assortment · 9:3:3:1 ratio", "#7c3aed"),
+            ("exp03_testcross", "EXP 03", "Test Cross & Zygosity", "🔍",
+             "AA vs Aa identification · Backcross with aa", "#0ea5e9"),
+            ("exp04_statistical", "EXP 04", "Chi-Square Validation", "📐",
+             "Pearson χ² goodness-of-fit · p-value · Mendel's data", "#059669"),
+            ("exp05_simulation", "EXP 05", "Population Simulation", "🧬",
+             "Stochastic sampling · N = 20 to 5000 · Drift visualization", "#f59e0b"),
+            ("exp06_evaluation_ai", "EXP 06", "Offline AI Evaluator", "🤖",
+             "Student error diagnosis · Decision Tree · Instant feedback", "#e11d48"),
         ]
 
-        row = 1
-        col = 0
-        for tag, name, desc in planned_modules:
-            card = QFrame(scroll_content)
-            card.setObjectName("lab-card")
-            card.setStyleSheet("background-color: #0d172a; border: 1px dashed #243552; border-radius: 6px; padding: 8px;")
-            c_layout = QVBoxLayout(card)
-            
-            top_h = QHBoxLayout()
-            lbl_tag = QLabel(tag, card)
-            lbl_tag.setStyleSheet("color: #60738a; font-weight: bold; font-size: 9px;")
-            badge = QLabel("PLANNED MODULE", card)
-            badge.setStyleSheet("background-color: #1a2233; color: #8da0b8; border-radius: 3px; padding: 2px 4px; font-size: 8px;")
-            top_h.addWidget(lbl_tag)
-            top_h.addStretch()
-            top_h.addWidget(badge)
-            c_layout.addLayout(top_h)
+        grid = QGridLayout()
+        grid.setSpacing(12)
+        row, col = 0, 0
+        for screen_id, num, title, icon, desc, accent in experiments:
+            card = ExperimentCard(screen_id, num, title, icon, desc, accent, scroll_widget)
+            card.setMinimumHeight(155)
 
-            c_title = QLabel(name, card)
-            c_title.setStyleSheet("font-weight: bold; color: #c4d1e0; font-size: 11px;")
-            c_layout.addWidget(c_title)
-
-            c_desc = QLabel(desc, card)
-            c_desc.setWordWrap(True)
-            c_desc.setStyleSheet("color: #70849d; font-size: 9px;")
-            c_layout.addWidget(c_desc)
-
-            btn_disabled = QPushButton("Planned for Phase II", card)
-            btn_disabled.setEnabled(False)
-            btn_disabled.setStyleSheet("background-color: #121c2e; color: #4f637e; border: 1px solid #1f2c42;")
-            c_layout.addWidget(btn_disabled)
+            # Launch button inside card
+            btn = QPushButton("LAUNCH →", card)
+            btn.setObjectName("btn-primary")
+            btn.setStyleSheet(
+                f"background: {accent}; color: #ffffff; border: none; "
+                f"border-radius: 8px; padding: 7px 16px; font-weight: 800; font-size: 10px;"
+            )
+            btn.clicked.connect(lambda checked, s=screen_id: self.navigate_to.emit(s))
+            card.layout().addWidget(btn)
 
             grid.addWidget(card, row, col)
             col += 1
-            if col > 1:
+            if col > 2:
                 col = 0
                 row += 1
 
-        # SYSTEM & RECORDS BUTTONS
-        sys_h = QHBoxLayout()
-        btn_records = QPushButton("📋 EXPERIMENTAL RECORDS BROWSER", self)
+        inner.addLayout(grid)
+
+        # ── Coming Soon ───────────────────────────────────────────────────────
+        coming_lbl = QLabel("PHASE II MODULES  ·  Coming Soon", scroll_widget)
+        coming_lbl.setStyleSheet(
+            "font-size: 11px; font-weight: 800; color: #9ca3af; letter-spacing: 0.5px; margin-top: 4px;"
+        )
+        inner.addWidget(coming_lbl)
+
+        planned_row = QHBoxLayout()
+        planned_row.setSpacing(10)
+        planned = [
+            ("📗", "MOD 02", "Extensions of Mendelian Genetics", "#f3f4f6", "#9ca3af"),
+            ("🔗", "MOD 03", "Linkage & Recombination", "#f3f4f6", "#9ca3af"),
+            ("🌍", "MOD 04", "Population Genetics", "#f3f4f6", "#9ca3af"),
+            ("📈", "MOD 05", "Quantitative Genetics", "#f3f4f6", "#9ca3af"),
+        ]
+        for icon, tag, title, bg, col in planned:
+            f = QFrame(scroll_widget)
+            f.setStyleSheet(
+                f"background: {bg}; border: 1.5px dashed #d1d5db; border-radius: 12px; padding: 10px;"
+            )
+            fl = QVBoxLayout(f)
+            fl.setContentsMargins(10, 8, 10, 8)
+            fl.setSpacing(3)
+            fl.addWidget(QLabel(icon + "  " + tag, f))
+            tl = QLabel(title, f)
+            tl.setStyleSheet(f"font-size: 10px; font-weight: 700; color: {col};")
+            tl.setWordWrap(True)
+            fl.addWidget(tl)
+            bl = QLabel("PLANNED", f)
+            bl.setStyleSheet(
+                "background: #e5e7eb; color: #6b7280; border-radius: 4px;"
+                "padding: 2px 8px; font-size: 8px; font-weight: 800;"
+            )
+            fl.addWidget(bl)
+            planned_row.addWidget(f)
+        inner.addLayout(planned_row)
+
+        # ── Bottom nav buttons ────────────────────────────────────────────────
+        nav_row = QHBoxLayout()
+        nav_row.setSpacing(10)
+
+        btn_module = QPushButton("📋  Module 01 Hub  →", scroll_widget)
+        btn_module.setObjectName("btn-primary")
+        btn_module.clicked.connect(lambda: self.navigate_to.emit("module01_hub"))
+        nav_row.addWidget(btn_module)
+
+        btn_records = QPushButton("🗂  Experiment Records", scroll_widget)
+        btn_records.setObjectName("btn-secondary")
         btn_records.clicked.connect(lambda: self.navigate_to.emit("records"))
-        sys_h.addWidget(btn_records)
+        nav_row.addWidget(btn_records)
 
-        btn_settings = QPushButton("⚙️ SYSTEM SETTINGS & HARDWARE", self)
+        btn_settings = QPushButton("⚙  Settings & Hardware", scroll_widget)
+        btn_settings.setObjectName("btn-secondary")
         btn_settings.clicked.connect(lambda: self.navigate_to.emit("settings"))
-        sys_h.addWidget(btn_settings)
+        nav_row.addWidget(btn_settings)
 
-        scroll.setWidget(scroll_content)
+        nav_row.addStretch()
+        inner.addLayout(nav_row)
+
+        scroll.setWidget(scroll_widget)
         main_layout.addWidget(scroll)
-        main_layout.addLayout(sys_h)
